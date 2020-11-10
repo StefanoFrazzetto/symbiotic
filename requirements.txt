@@ -1,7 +1,12 @@
 certifi==2020.11.8
 chardet==3.0.4
 colorzero==1.1
+dependency-injector==4.3.6
 gpiozero==1.5.1
 idna==2.10
+pigpio==1.78
+PyYAML==5.3.1
 requests==2.24.0
+RPi.GPIO==0.7.0
+six==1.15.0
 urllib3==1.25.11
