@@ -8,7 +8,6 @@ from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import MotionSensor
 from gpiozero import Device, LED
 
-from app.containers import Application, SmartDevice
 from dependency_injector.wiring import Provide
 
 from app.containers import Application

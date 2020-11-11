@@ -5,8 +5,6 @@ import logging.config
 from .services import *
 from .devices import *
 
-from .services import IFTTTService
-from .devices import LightBulb
 from dependency_injector import providers, containers
 
 
