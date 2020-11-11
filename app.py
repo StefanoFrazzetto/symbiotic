@@ -11,16 +11,20 @@ from gpiozero import Device, LED
 from app.containers import Application, SmartDevice
 from dependency_injector.wiring import Provide
 
+from app.containers import Application
+from app.devices import SmartDevice
 # use pigpio for security (network daemon instead of root owner /dev/gpiomem)
 Device.pin_factory = PiGPIOFactory()
 
 
-def main(device: SmartDevice = Provide[Application.device]):
+def main(
+    light_bulb: SmartDevice = Provide[Application.light_bulb]
+    ):
     logging.info("Application started.")
 
     pir = MotionSensor(4)  # pin 4
-    pir.when_motion = device.switch_on
-    pir.when_no_motion = device.switch_off
+    pir.when_motion = light_bulb.switch_on
+    # pir.when_no_motion = light_bulb.switch_off
 
     while True:
         pir.wait_for_motion()

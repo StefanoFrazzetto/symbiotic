@@ -14,7 +14,7 @@ class BaseService(object):
         return self.__class__.__name__
 
 
-class IFTTTService(BaseService):
+class IFTTT(BaseService):
 
     def __init__(self, config):
         self._key = config.get('key')
