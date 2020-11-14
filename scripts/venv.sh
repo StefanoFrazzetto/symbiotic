@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -x 
-
 SCRIPTS_DIR="$(dirname $0)"
 ROOT_DIR="$SCRIPTS_DIR/.."
 
