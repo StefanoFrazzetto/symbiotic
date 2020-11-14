@@ -9,8 +9,8 @@ sudo apt-get install -y python3-gpiozero
 # The daemon can be started with `sudo pigpiod`
 # Read: https://gpiozero.readthedocs.io/en/stable/installing.html
 
-SCRIPT_DIR="$(dirname $0)"
-ROOT_DIR="$SCRIPT_DIR/.."
+SCRIPTS_DIR="$(dirname $0)"
+ROOT_DIR="$SCRIPTS_DIR/.."
 
 pushd "$ROOT_DIR"
     mkdir build

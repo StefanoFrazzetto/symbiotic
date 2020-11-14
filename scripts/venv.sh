@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+set -x 
+
 SCRIPTS_DIR="$(dirname $0)"
-ROOT_DIR="$SCRIPT_DIR/.."
+ROOT_DIR="$SCRIPTS_DIR/.."
 
 # re-create venv dir
 pushd "$ROOT_DIR"
