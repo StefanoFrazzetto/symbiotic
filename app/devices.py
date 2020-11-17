@@ -1,5 +1,7 @@
 import logging
+
 from enum import Enum
+from .responses import ServiceResponse
 
 
 class DeviceState(Enum):
@@ -40,23 +42,20 @@ class LightBulb(SmartDevice):
         self._service = kwargs.pop('service')
         super().__init__(name, *args, **kwargs)
 
-    def _change_state(self, new_state: DeviceState):
+    def _change_state(self, new_state: DeviceState) -> ServiceResponse:
         if new_state != self.state:
-            try:
-                service_event = self._state_to_service_event(new_state)
-                self._service.trigger(service_event)
+            service_event = self._state_to_service_event(new_state)
+            response = self._service.call(event=service_event)
+            if response.success:
                 self.state = new_state
-            except Exception as e:
-                message = 'Error while changing device state:\n'
-                message += f'\texception: {str(e)}\n'
-                message += f'\tservice event: {str(service_event)}\n'
-                self.logger.error(message)
-                raise e
+            return response
 
-    def switch_on(self):
+        return ServiceResponse(True, f'{self.name} is already {self.state}')
+
+    def switch_on(self) -> ServiceResponse:
         self.logger.debug("Invoked switch on")
-        self._change_state(DeviceState.ON)
+        return self._change_state(DeviceState.ON)
 
-    def switch_off(self):
+    def switch_off(self) -> ServiceResponse:
         self.logger.debug("Invoked switch off")
-        self._change_state(DeviceState.OFF)
+        return self._change_state(DeviceState.OFF)

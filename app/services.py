@@ -1,8 +1,11 @@
 import logging
 import requests
 
+from abc import ABC, abstractmethod
+from .responses import ServiceResponse
+from .exceptions import ConfigurationError
 
-class BaseService(object):
+class BaseService(ABC):
 
     def __init__(self) -> None:
         self.logger = logging.getLogger(
@@ -13,18 +16,26 @@ class BaseService(object):
     def name(self) -> str:
         return self.__class__.__name__
 
+    @abstractmethod
+    def call(self, *args, **kwargs) -> ServiceResponse:
+        pass
+
 
 class IFTTT(BaseService):
 
     def __init__(self, config):
-        self._key = config.get('key')
-        self._domain = config.get('domain')
+        try:
+            self.domain = config.get('domain', 'https://maker.ifttt.com')
+            self._key = config.pop('key')
+        # print an error message if key is missing
+        except (AttributeError, KeyError):
+            raise ConfigurationError('You must add your IFTTT parameters to your config.yaml file')
         super().__init__()
 
-    def trigger(self, event: str):
+    def call(self, *args, **kwargs) -> ServiceResponse:
+        event = kwargs.pop('event')
         url = "{domain}/trigger/{event}/with/key/{key}".format(
-            domain=self._domain, event=event, key=self._key
+            domain=self.domain, event=event, key=self._key
         )
         response = requests.post(url)
-        self.logger.debug(f"Response {response.status_code}:\n{response.text}")
-        response.raise_for_status()
+        return ServiceResponse.from_response(response)
