@@ -19,7 +19,7 @@ class ServiceResponse(object):
     @staticmethod
     def from_response(response: Response):
         # use raise_for_status with try
-        success = response.status_code < 400
+        success = response.ok
         return ServiceResponse(success=success, message=response.text)
 
 

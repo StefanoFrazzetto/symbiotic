@@ -12,8 +12,9 @@ from dependency_injector.wiring import Provide
 
 from app.containers import Application
 from app.devices import SmartDevice
+from app.device_parameters import KasaLightBulb
 # use pigpio for security (network daemon instead of root owner /dev/gpiomem)
-Device.pin_factory = PiGPIOFactory()
+# Device.pin_factory = PiGPIOFactory()
 
 
 def main(
@@ -21,14 +22,16 @@ def main(
     ):
     logging.info("Application started.")
 
-    pir = MotionSensor(4)  # pin 4
-    pir.when_motion = light_bulb.switch_on
+    # pir = MotionSensor(4)  # pin 4
+    # pir.when_motion = light_bulb.switch_on
     # pir.when_no_motion = light_bulb.switch_off
 
-    while True:
-        pir.wait_for_motion()
-        logging.debug("Motion started.")
-        time.sleep(5)
+    parameters = KasaLightBulb().color(255, 0, 0).brightness(20).transition_duration(0)
+    light_bulb.switch_on(parameters=parameters)
+    # while True:
+        # pir.wait_for_motion()
+        # logging.debug("Motion started.")
+        # time.sleep(5)
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ import logging
 
 from enum import Enum
 from .responses import ServiceResponse
+from .device_parameters import DeviceParameters, KasaLightBulb
 
 
 class DeviceState(Enum):
@@ -19,7 +20,7 @@ class SmartDevice(object):
 
     "Map device physical states to IFTTT service_event names."
     states_events_mapping: dict = {
-        DeviceState.ON: 'switch_on',
+        DeviceState.ON: 'bedroom_light_color',
         DeviceState.OFF: 'switch_off'
     }
 
@@ -42,19 +43,24 @@ class LightBulb(SmartDevice):
         self._service = kwargs.pop('service')
         super().__init__(name, *args, **kwargs)
 
-    def _change_state(self, new_state: DeviceState) -> ServiceResponse:
-        if new_state != self.state:
-            service_event = self._state_to_service_event(new_state)
-            response = self._service.call(event=service_event)
+    def _change_state(self, state: DeviceState, **kwargs) -> ServiceResponse:
+        if state != self.state:
+            service_event = self._state_to_service_event(state)
+            params = kwargs.get('parameters')
+            response = self._service.call(event=service_event, parameters=params)
             if response.success:
-                self.state = new_state
+                self.state = state
             return response
 
         return ServiceResponse(True, f'{self.name} is already {self.state}')
 
-    def switch_on(self) -> ServiceResponse:
-        self.logger.debug("Invoked switch on")
-        return self._change_state(DeviceState.ON)
+    def switch_on(self, **kwargs) -> ServiceResponse:
+        parameters: DeviceParameters = kwargs.get('parameters')
+        if not parameters:
+            parameters = KasaLightBulb()
+        parameters = parameters.done()
+        self.logger.debug(f'Invoked switch on with {parameters}')
+        return self._change_state(DeviceState.ON, parameters=parameters)
 
     def switch_off(self) -> ServiceResponse:
         self.logger.debug("Invoked switch off")
