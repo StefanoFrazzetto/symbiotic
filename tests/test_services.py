@@ -69,6 +69,10 @@ def mocked_requests_post(*args, **kwargs):
         def json(self):
             return self.json_data
 
+        @property
+        def ok(self):
+            return self.status_code < 400
+
     url = args[0]
     url_segments = urlparse(url).path.split('/')
     event_name = url_segments[2]
