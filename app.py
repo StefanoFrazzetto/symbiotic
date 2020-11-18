@@ -33,8 +33,7 @@ def main(
 
 if __name__ == '__main__':
     application = Application()
-    application.config.from_yaml('config.yaml')
-    application.config.logging.from_yaml('configs/logging.yaml')
     application.init_resources()
+    application.config.from_yaml('config.yaml')
     application.wire(modules=[sys.modules[__name__]])
     main(*sys.argv[1:])
