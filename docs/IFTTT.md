@@ -13,7 +13,7 @@ In order to make Webhooks available to your applets, you will need to enable the
 2. Click **Connect**
 3. Click **Settings**, on the top right side of the page
 4. Copy the token, e.g. _https[]()://maker.ifttt.com/use/
-**PjpdA4FzqtlrocCvEiLGSz**_
+**your_webhooks_token**_
 5. Paste the token in **config.yaml** in your SmarterHome project
 
 This token will allow SmarterHome to call the webhook(s) on your behalf to 
