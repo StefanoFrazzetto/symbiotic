@@ -18,29 +18,46 @@ class BaseService(ABC):
         return self.__class__.__name__
 
     @abstractmethod
-    def call(self, *args, **kwargs) -> ServiceResponse:
+    def trigger(self, *args, **kwargs) -> ServiceResponse:
         pass
 
 
 class IFTTT(BaseService):
 
+    DEFAULT_URL = 'https://maker.ifttt.com/trigger/{event_name}/with/key/{key}'
+
     def __init__(self, config):
         try:
-            self.domain = config.get('domain', 'https://maker.ifttt.com')
+            self._url = config.get('url', IFTTT.DEFAULT_URL)
             self._key = config.pop('key')
-        # print an error message if key is missing
         except (AttributeError, KeyError):
-            raise ConfigurationError('You must add your IFTTT parameters to your config.yaml file')
+            raise ConfigurationError(
+                'You must add your IFTTT parameters to your config.yaml file')
         super().__init__()
 
-    def call(self, *args, **kwargs) -> ServiceResponse:
-        event: str = kwargs.pop('event')
+    def trigger(self, **kwargs) -> ServiceResponse:
+        """Triggers the IFTTT webhook 'event_name' with 'parameters'.
+
+        Parameters
+        ----------
+        event_name : str
+            The name of the webhook to trigger, as defined in the "Event Name".
+
+        parameters : dict, optional
+            An optional dictionary containing the parameters to pass with the request.
+            It can contain one to three parameters defined as follows:
+            {
+                'value1': '...',
+                'value2': '...', 
+                'value3': '...'
+            }
+
+        """
+        event_name: str = kwargs.pop('event_name')
         parameters: dict = kwargs.get('parameters')
-        url = "{domain}/trigger/{event}/with/key/{key}".format(
-            domain=self.domain, 
-            event=event, 
-            key=self._key
-        )
+
+        url = self._url.format(event_name=event_name, key=self._key)
         response = requests.post(url, parameters)
         self.logger.debug(response.text)
+
         return ServiceResponse.from_response(response)

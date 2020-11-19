@@ -16,15 +16,9 @@ class SmartDevice(ABC):
         def __str__(self):
             return self.value
 
-    _name: str
-    _state: State
-    _parameters: SmartDeviceParameters
-
-    "Map device physical states to IFTTT service_event names."
-    states_events_mapping: dict = {
-        State.ON: 'bedroom_light_color',
-        State.OFF: 'switch_off'
-    }
+    _name: str # name of the device
+    _state: State # on or off
+    _parameters: SmartDeviceParameters # colour, brightness, etc.
 
     def __init__(self, name, *args, **kwargs) -> None:
         self._name = name
@@ -32,7 +26,13 @@ class SmartDevice(ABC):
         self._parameters = self._default_parameters()
         self.logger = logging.getLogger(
             f'{__name__}.{self.__class__.__name__}',
-        )
+    )
+
+    "Map device physical states to IFTTT service_event names."
+    states_events_mapping: dict = {
+        State.ON: 'bedroom_light_color',
+        State.OFF: 'switch_off'
+    }
 
     @staticmethod
     def _state_to_service_event(device_state: State):
@@ -85,8 +85,8 @@ class LightBulb(SmartDevice):
             params = params.finalize() if params else self.parameters.finalize()
             self.logger.debug(f'Calling {service_event} with parameters: {params}')
 
-            response = self._service.call(
-                event=service_event,
+            response = self._service.trigger(
+                event_name=service_event,
                 parameters=params
             )
 
