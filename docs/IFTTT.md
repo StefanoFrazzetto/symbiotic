@@ -60,7 +60,7 @@ Kasa.changeColor.setColor(color)
 Kasa.changeColor.setTransitionDuration(transition_duration)
 ```
 
-5. Give your applet a title, e.g. *Switch on bedroom light through webook*
+5. Give your applet a title, e.g. *Switch on bedroom light through webhook*
 6. Click the '*Finish*' button
 
 \
