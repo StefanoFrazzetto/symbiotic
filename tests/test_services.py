@@ -84,10 +84,10 @@ def mocked_requests_post(*args, **kwargs):
     elif key == 'unauthorized_key':  # permissions not sufficient for action
         return MockResponse(StatusCodes.FORBIDDEN.code, StatusCodes.FORBIDDEN.reason)
     elif key == 'valid_key':
-        # key is authorized, check the event
+        # key is authorized, check the event_name
         if event_name == 'non-existent_event':
             return MockResponse(StatusCodes.NOT_FOUND.code, StatusCodes.NOT_FOUND.reason)
-        elif event_name == 'valid-event':
+        elif event_name == 'valid-event_name':
             return MockResponse(StatusCodes.OK.code, StatusCodes.OK.reason)
 
     return MockResponse(StatusCodes.BAD_REQUEST.code, StatusCodes.BAD_REQUEST.reason)
@@ -98,23 +98,23 @@ class IFTTT_UnitTests(unittest.TestCase):
     @mock.patch('app.services.requests.post', side_effect=mocked_requests_post)
     def test_call_trigger_bad_key(self, mock_post):
         ifttt = services.IFTTT(config={'key': 'bad_key'})
-        response = ifttt.call(event='some-event')
+        response = ifttt.trigger(event_name='some-event_name')
         self.assertFalse(response.success)
 
     @mock.patch('app.services.requests.post', side_effect=mocked_requests_post)
     def test_call_trigger_unauthorized_key(self, mock_post):
         ifttt = services.IFTTT(config={'key': 'unauthorized_key'})
-        response = ifttt.call(event='some-event')
+        response = ifttt.trigger(event_name='some-event_name')
         self.assertFalse(response.success)
 
     @mock.patch('app.services.requests.post', side_effect=mocked_requests_post)
     def test_call_trigger_non_existent_event(self, mock_post):
         ifttt = services.IFTTT(config={'key': 'valid_key'})
-        response = ifttt.call(event='non-existent_event')
+        response = ifttt.trigger(event_name='non-existent_event')
         self.assertFalse(response.success)
 
     @mock.patch('app.services.requests.post', side_effect=mocked_requests_post)
     def test_call_trigger_valid_request(self, mock_post):
         ifttt = services.IFTTT(config={'key': 'valid_key'})
-        response = ifttt.call(event='valid-event')
+        response = ifttt.trigger(event_name='valid-event_name')
         self.assertTrue(response.success)
