@@ -1,35 +1,20 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
-
 class SmartDeviceParameters(ABC):
 
     @abstractmethod
-    def finalize(self) -> dict:
-        pass
-
+    def to_dict(self) -> dict:
+        pass    
 
 class LightBulbParameters(SmartDeviceParameters):
 
-    DEFAULT_COLOR: str = '#ffffff'
-    DEFAULT_BRIGHTNESS: int = 100
-    DEFAULT_TRANSITION_DURATION = 0
-
     def __init__(self, *args, **kwargs):
-        self._color = kwargs.get(
-            'color', 
-            LightBulbParameters.DEFAULT_COLOR
-        )
-        self._brightness = kwargs.get(
-            'brightness',
-            LightBulbParameters.DEFAULT_BRIGHTNESS
-        )
-        self._transition_duration = kwargs.get(
-            'transition_duration', 
-            LightBulbParameters.DEFAULT_TRANSITION_DURATION
-        )
+        self._color = kwargs.get('color', '#ffffff')
+        self._brightness = kwargs.get('brightness', 100)
+        self._transition_duration = kwargs.get('transition_duration', 1000)
 
-    def finalize(self) -> dict:
+    def to_dict(self) -> dict:
         return {
             'value1': self._brightness,
             'value2': self._color,

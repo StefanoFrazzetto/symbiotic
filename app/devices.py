@@ -3,12 +3,17 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
+from dataclasses import dataclass
 
-from .device_parameters import SmartDeviceParameters, LightBulbParameters
+from .device_parameters import *
 from .responses import ServiceResponse
+from .services import BaseService
 
 
 class SmartDevice(ABC):
+    """
+    SmartDevice encapsulates the methods to control any smart device.
+    """
     class State(Enum):
         ON = 'on'
         OFF = 'off'
@@ -16,17 +21,30 @@ class SmartDevice(ABC):
         def __str__(self):
             return self.value
 
-    _name: str # name of the device
-    _state: State # on or off
+    _name: str  # name of the device
+    _state: State  # on or off
     _parameters: SmartDeviceParameters # colour, brightness, etc.
+    _service: BaseService # service used to control the device, e.g IFTTT
 
-    def __init__(self, name, *args, **kwargs) -> None:
-        self._name = name
+    def __init__(self, service: BaseService, *args, **kwargs) -> None:
+        self._name = kwargs.get('name', 'smart device')
         self._state = kwargs.get('state')
-        self._parameters = self._default_parameters()
+        self._service = service
+        self._parameters = self._init_parameters(**kwargs)
         self.logger = logging.getLogger(
             f'{__name__}.{self.__class__.__name__}',
-    )
+        )
+
+    # @staticmethod
+    # def factory(blueprint: dict, *args, **kwargs):
+    #     """
+    #     Creates a device given a dictionary of parameters, such as
+    #     name, type, associated services (e.g. IFTTT), etc.
+    #     """
+    #     service = kwargs.get('service')
+
+    #     if blueprint['type'] == 'LightBulb':
+    #         return LightBulb(service=service)
 
     "Map device physical states to IFTTT service_event names."
     states_events_mapping: dict = {
@@ -51,13 +69,7 @@ class SmartDevice(ABC):
         self._state = state
 
     @abstractmethod
-    def _default_parameters(self) -> SmartDeviceParameters:
-        """
-        Force subclasses to implement this method, so that the
-        parameters field is always defined with the proper class type.
-        """
-        self.logger.error(
-            "You need to implement 'default_parameters' in your subclass")
+    def _init_parameters(self, **kwargs) -> SmartDeviceParameters:
         pass
 
     @property
@@ -67,13 +79,15 @@ class SmartDevice(ABC):
 
 class LightBulb(SmartDevice):
 
-    def __init__(self, *args, **kwargs):
-        name = "light bulb"
-        self._service = kwargs.pop('service')
-        super().__init__(name, *args, **kwargs)
+    def __init__(self, service: BaseService, *args, **kwargs):
+        super().__init__(service, *args, **kwargs)
 
-    def _default_parameters(self):
-        return LightBulbParameters()
+    def _init_parameters(self, **kwargs) -> LightBulbParameters:
+        """
+        Override the abstract method, proving params for the concrete class.
+        """
+        parameters = kwargs.get('parameters')
+        return LightBulbParameters(**parameters)
 
     def _change_state(self, state: SmartDevice.State, **kwargs) -> ServiceResponse:
         self.logger.debug(f"Invoked _change_state with '{state}'")
@@ -82,8 +96,9 @@ class LightBulb(SmartDevice):
             service_event = self._state_to_service_event(state)
             params = kwargs.get('parameters')
             # get parameters from kwargs, if not None, else get the instance ones
-            params = params.finalize() if params else self.parameters.finalize()
-            self.logger.debug(f'Calling {service_event} with parameters: {params}')
+            params = params.to_dict() if params else self.parameters.to_dict()
+            self.logger.debug(
+                f'Calling {service_event} with parameters: {params}')
 
             response = self._service.trigger(
                 event_name=service_event,
