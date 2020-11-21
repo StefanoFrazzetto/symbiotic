@@ -93,7 +93,7 @@ def mocked_requests_post(*args, **kwargs):
     return MockResponse(StatusCodes.BAD_REQUEST.code, StatusCodes.BAD_REQUEST.reason)
 
 
-class IFTTT_UnitTests(unittest.TestCase):
+class Test_Unit_IFTTT(unittest.TestCase):
 
     @mock.patch('app.services.requests.post', side_effect=mocked_requests_post)
     def test_call_trigger_bad_key(self, mock_post):

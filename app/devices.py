@@ -87,7 +87,7 @@ class LightBulb(SmartDevice):
         Override the abstract method, proving params for the concrete class.
         """
         parameters = kwargs.get('parameters')
-        return LightBulbParameters(**parameters)
+        return LightBulbParameters(parameters)
 
     def _change_state(self, state: SmartDevice.State, **kwargs) -> ServiceResponse:
         self.logger.debug(f"Invoked _change_state with '{state}'")
@@ -96,13 +96,10 @@ class LightBulb(SmartDevice):
             service_event = self._state_to_service_event(state)
             params = kwargs.get('parameters')
             # get parameters from kwargs, if not None, else get the instance ones
-            params = params.to_dict() if params else self.parameters.to_dict()
-            self.logger.debug(
-                f'Calling {service_event} with parameters: {params}')
-
+            params = params if params else self.parameters
             response = self._service.trigger(
                 event_name=service_event,
-                parameters=params
+                parameters=params.to_dict()
             )
 
             if response.success:
