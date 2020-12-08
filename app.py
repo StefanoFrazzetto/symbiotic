@@ -14,16 +14,21 @@ from app.containers import Application
 from app.services import IFTTT
 from app.devices import LightBulb
 from app.triggers.sensors import MotionSensor
+from signal import pause
+
+from event_bus import EventBus
 # use pigpio for security (network daemon instead of root owner /dev/gpiomem)
 Device.pin_factory = PiGPIOFactory()
 
 
 def main(
-    light_bulb: LightBulb = Provide[Application.light_bulb]
+    light_bulb: LightBulb = Provide[Application.light_bulb],
+    sensor: MotionSensor = Provide[Application.sensor],
+    bus: EventBus = Provide[Application.bus]
 ):
     logging.info("Application started.")
 
-    sensor = MotionSensor('bedroom', 4)
+    pause()
 
 
 if __name__ == '__main__':

@@ -14,8 +14,6 @@ from event_bus import EventBus
 
 class SmartDevice(ABC):
     
-    bus = EventBus()
-    
     """
     SmartDevice encapsulates the methods to control any smart device.
     """
@@ -34,6 +32,7 @@ class SmartDevice(ABC):
     def __init__(self, service: BaseService, *args, **kwargs) -> None:
         self._name = kwargs.get('name', 'smart device')
         self._state = kwargs.get('state')
+        self._bus = kwargs.pop('bus', None)
         self._service = service
         self._parameters = self._init_parameters(**kwargs)
         self.logger = logging.getLogger(
@@ -58,6 +57,10 @@ class SmartDevice(ABC):
     def state(self) -> State:
         return self._state
 
+    @property
+    def bus(self) -> EventBus:
+        return self._bus
+
     @state.setter
     def state(self, state: SmartDevice.State):
         self._state = state
@@ -75,6 +78,8 @@ class LightBulb(SmartDevice):
 
     def __init__(self, service: BaseService, *args, **kwargs):
         super().__init__(service, *args, **kwargs)
+        self.bus.add_event(self.switch_on, 'bedroom')
+        self.bus.add_event(self.switch_off, 'bedroom')
 
     def _init_parameters(self, **kwargs) -> LightBulbParameters:
         """
@@ -103,12 +108,10 @@ class LightBulb(SmartDevice):
 
         return ServiceResponse(True, f'{self.name} is already {self.state}')
 
-    @SmartDevice.bus.on('bedroom')
     def switch_on(self, **kwargs) -> ServiceResponse:
         params = kwargs.get('parameters')
         return self._change_state(SmartDevice.State.ON, parameters=params)
 
-    @SmartDevice.bus.on('bedroom')
     def switch_off(self, **kwargs) -> ServiceResponse:
         params = kwargs.get('parameters')
         return self._change_state(SmartDevice.State.OFF, parameters=params)

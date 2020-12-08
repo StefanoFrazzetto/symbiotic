@@ -6,16 +6,18 @@ class MotionSensor(object):
     
     name: str
     sensor: GPIOZeroMotionSensor
-    bus = EventBus()
     
-    def __init__(self, name: str, pin: int):
+    def __init__(self, name: str, pin: int, *args, **kwargs):
         self.name = name
         self.sensor = GPIOZeroMotionSensor(pin)
+        self.bus = kwargs.pop('bus')
         self.sensor.when_motion = self.active
         self.sensor.when_no_motion = self.inactive
     
     def active(self):
-        MotionSensor.bus.emit(self.name, 'switch_on')
+        print(f'emitting {self.name} switch_on')
+        self.bus.emit_only(self.name, 'switch_on')
     
     def inactive(self):
-        MotionSensor.bus.emit(self.name, 'switch_off')
+        print(f'emitting {self.name} switch_on')
+        self.bus.emit_only(self.name, 'switch_off')
