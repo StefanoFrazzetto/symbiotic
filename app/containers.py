@@ -8,7 +8,7 @@ from .devices import *
 from dependency_injector import providers, containers
 
 
-class Container(containers.DeclarativeContainer):
+class Application(containers.DeclarativeContainer):
     config = providers.Configuration()
     config.logging.from_yaml('configs/logging.yaml')
 
@@ -19,7 +19,3 @@ class Container(containers.DeclarativeContainer):
 
     ifttt = providers.Singleton(IFTTT, config=config.services.IFTTT)
     light_bulb = providers.Factory(LightBulb, service=ifttt)
-
-
-class DeviceProvider(containers.DynamicContainer):
-    pass    

@@ -9,8 +9,13 @@ from .device_parameters import *
 from .responses import ServiceResponse
 from .services import BaseService
 
+from event_bus import EventBus
+
 
 class SmartDevice(ABC):
+    
+    bus = EventBus()
+    
     """
     SmartDevice encapsulates the methods to control any smart device.
     """
@@ -34,17 +39,6 @@ class SmartDevice(ABC):
         self.logger = logging.getLogger(
             f'{__name__}.{self.__class__.__name__}',
         )
-
-    # @staticmethod
-    # def factory(blueprint: dict, *args, **kwargs):
-    #     """
-    #     Creates a device given a dictionary of parameters, such as
-    #     name, type, associated services (e.g. IFTTT), etc.
-    #     """
-    #     service = kwargs.get('service')
-
-    #     if blueprint['type'] == 'LightBulb':
-    #         return LightBulb(service=service)
 
     "Map device physical states to IFTTT service_event names."
     states_events_mapping: dict = {
@@ -109,10 +103,12 @@ class LightBulb(SmartDevice):
 
         return ServiceResponse(True, f'{self.name} is already {self.state}')
 
+    @SmartDevice.bus.on('bedroom')
     def switch_on(self, **kwargs) -> ServiceResponse:
         params = kwargs.get('parameters')
         return self._change_state(SmartDevice.State.ON, parameters=params)
 
+    @SmartDevice.bus.on('bedroom')
     def switch_off(self, **kwargs) -> ServiceResponse:
         params = kwargs.get('parameters')
         return self._change_state(SmartDevice.State.OFF, parameters=params)
