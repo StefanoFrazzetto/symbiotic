@@ -3,7 +3,7 @@ import requests
 
 from abc import ABC, abstractmethod
 from .responses import ServiceResponse
-from .exceptions import ConfigurationError
+from ..core.exceptions import ConfigurationError
 
 
 class BaseService(ABC):
@@ -27,13 +27,13 @@ class IFTTT(BaseService):
     DEFAULT_URL = 'https://maker.ifttt.com/trigger/{event_name}/with/key/{key}'
 
     def __init__(self, config):
+        super().__init__()
         try:
             self._url = config.get('url', IFTTT.DEFAULT_URL)
             self._key = config.pop('key')
         except (AttributeError, KeyError):
             raise ConfigurationError(
                 'You must add your IFTTT parameters to your config.yaml file')
-        super().__init__()
 
     def trigger(self, **kwargs) -> ServiceResponse:
         """Triggers the IFTTT webhook 'event_name' with 'parameters'.
@@ -48,7 +48,7 @@ class IFTTT(BaseService):
             It can contain one to three parameters defined as follows:
             {
                 'value1': '...',
-                'value2': '...', 
+                'value2': '...',
                 'value3': '...'
             }
 

@@ -1,10 +1,8 @@
-import sys
-import yaml
 import logging.config
 
-from .services import *
-from .devices import *
-from .triggers.sensors import MotionSensor
+from ..web.services import IFTTT
+from ..devices.base import LightBulb
+from ..triggers.sensors import MotionSensor
 
 from event_bus import EventBus
 from dependency_injector import providers, containers

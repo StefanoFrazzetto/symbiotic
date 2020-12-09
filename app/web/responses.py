@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from requests import Response
 
@@ -11,9 +10,9 @@ class ServiceResponse(object):
     # prevent abstract class instantiation
     # https://stackoverflow.com/a/60669138/5874339
     # ---
-    # def __new__(cls, *args, **kwargs): 
-    #     if cls == ServiceResponse or cls.__bases__[0] == ServiceResponse: 
-    #         raise TypeError("Cannot instantiate abstract class.") 
+    # def __new__(cls, *args, **kwargs):
+    #     if cls == ServiceResponse or cls.__bases__[0] == ServiceResponse:
+    #         raise TypeError("Cannot instantiate abstract class.")
     #     return super().__new__(cls)
 
     @staticmethod

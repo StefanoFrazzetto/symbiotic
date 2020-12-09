@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import unittest
+import pytest
+from unittest import TestCase
 from enum import Enum
 
-import pytest
 from pytest_mock import mock
 
-from context import responses, services
+from app.web.services import IFTTT
 
 
 class StatusCodes(Enum):
@@ -45,14 +45,14 @@ class StatusCodes(Enum):
         return self.value[1]
 
 
-def ifttt_service_valid_key() -> services.IFTTT:
+def ifttt_service_valid_key() -> IFTTT:
     config = {'key': 'clearly_a_valid_key'}
-    return services.IFTTT(config=config)
+    return IFTTT(config=config)
 
 
-def ifttt_service_invalid_key() -> services.IFTTT:
+def ifttt_service_invalid_key() -> IFTTT:
     config = {'key': 'clearly_an_invalid_key'}
-    return services.IFTTT(config=config)
+    return IFTTT(config=config)
 
 
 # This method will be used by the mock to replace requests.post
@@ -93,28 +93,28 @@ def mocked_requests_post(*args, **kwargs):
     return MockResponse(StatusCodes.BAD_REQUEST.code, StatusCodes.BAD_REQUEST.reason)
 
 
-class Test_Unit_IFTTT(unittest.TestCase):
+class Test_Unit_IFTTT(TestCase):
 
-    @mock.patch('app.services.requests.post', side_effect=mocked_requests_post)
+    @mock.patch('app.web.services.requests.post', side_effect=mocked_requests_post)
     def test_call_trigger_bad_key(self, mock_post):
-        ifttt = services.IFTTT(config={'key': 'bad_key'})
+        ifttt = IFTTT(config={'key': 'bad_key'})
         response = ifttt.trigger(event_name='some-event_name')
         self.assertFalse(response.success)
 
-    @mock.patch('app.services.requests.post', side_effect=mocked_requests_post)
+    @mock.patch('app.web.services.requests.post', side_effect=mocked_requests_post)
     def test_call_trigger_unauthorized_key(self, mock_post):
-        ifttt = services.IFTTT(config={'key': 'unauthorized_key'})
+        ifttt = IFTTT(config={'key': 'unauthorized_key'})
         response = ifttt.trigger(event_name='some-event_name')
         self.assertFalse(response.success)
 
-    @mock.patch('app.services.requests.post', side_effect=mocked_requests_post)
+    @mock.patch('app.web.services.requests.post', side_effect=mocked_requests_post)
     def test_call_trigger_non_existent_event(self, mock_post):
-        ifttt = services.IFTTT(config={'key': 'valid_key'})
+        ifttt = IFTTT(config={'key': 'valid_key'})
         response = ifttt.trigger(event_name='non-existent_event')
         self.assertFalse(response.success)
 
-    @mock.patch('app.services.requests.post', side_effect=mocked_requests_post)
+    @mock.patch('app.web.services.requests.post', side_effect=mocked_requests_post)
     def test_call_trigger_valid_request(self, mock_post):
-        ifttt = services.IFTTT(config={'key': 'valid_key'})
+        ifttt = IFTTT(config={'key': 'valid_key'})
         response = ifttt.trigger(event_name='valid-event_name')
         self.assertTrue(response.success)

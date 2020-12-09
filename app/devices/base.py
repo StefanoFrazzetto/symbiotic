@@ -3,17 +3,18 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from dataclasses import dataclass
 
-from .device_parameters import *
-from .responses import ServiceResponse
-from .services import BaseService
+from .parameters import SmartDeviceParameters, LightBulbParameters
+from ..web.responses import ServiceResponse
+from ..web.services import BaseService
 
 from event_bus import EventBus
 
 
 class SmartDevice(ABC):
-    
+
+    bus = EventBus()
+
     """
     SmartDevice encapsulates the methods to control any smart device.
     """
@@ -26,8 +27,8 @@ class SmartDevice(ABC):
 
     _name: str  # name of the device
     _state: State  # on or off
-    _parameters: SmartDeviceParameters # colour, brightness, etc.
-    _service: BaseService # service used to control the device, e.g IFTTT
+    _parameters: SmartDeviceParameters  # colour, brightness, etc.
+    _service: BaseService  # service used to control the device, e.g IFTTT
 
     def __init__(self, service: BaseService, *args, **kwargs) -> None:
         self._name = kwargs.get('name', 'smart device')
