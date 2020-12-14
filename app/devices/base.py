@@ -1,23 +1,67 @@
 from __future__ import annotations
 
-import logging
+import math
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Callable, List
 
-from .parameters import SmartDeviceParameters, LightBulbParameters
+from app import bus, scheduler
+from app.core.interfaces import Loggable
+
 from ..web.responses import ServiceResponse
 from ..web.services import BaseService
+from .parameters import LightBulbParameters, SmartDeviceParameters
 
-from event_bus import EventBus
+
+@dataclass
+class Action(object):
+    source: SmartDevice
+    event: str
+    job: Callable
+    when: str
+
+    def __init__(self, on: str, do: Callable, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event = on
+        self.job = do
+
+    def __call__(self, *args, **kwargs):
+        self.job(*args, **kwargs)
+
+    def register(self):
+        """ Registers the action with the bus. """
+        bus.add_event(self.job, self.event)
+        print(f'even {self.event} registered')
+
+    def schedule(self):
+        raise NotImplementedError('TODO')
 
 
-class SmartDevice(ABC):
+class Eventable(ABC):
 
-    bus = EventBus()
+    actions: List[Action]
 
+    def __init__(self, *args, **kwargs):
+        print(kwargs)
+        super().__init__(*args, **kwargs)
+        self.actions = []
+
+    def action(self, *args, **kwargs) -> None:
+        # TODO: add checking for different types, e.g. tuples or kwargs
+        action = Action(**kwargs)
+        action.register()
+        self.actions.append(action)
+
+
+class SmartDevice(Loggable, Eventable, ABC):
     """
     SmartDevice encapsulates the methods to control any smart device.
     """
+
+    UPDATES_THROTTLE: int = 5
+
     class State(Enum):
         ON = 'on'
         OFF = 'off'
@@ -31,14 +75,12 @@ class SmartDevice(ABC):
     _service: BaseService  # service used to control the device, e.g IFTTT
 
     def __init__(self, service: BaseService, *args, **kwargs) -> None:
-        self._name = kwargs.get('name', 'smart device')
+        super().__init__(*args, **kwargs)
+        self._name = kwargs.pop('name', 'smart device')
         self._state = kwargs.get('state')
-        self._bus = kwargs.pop('bus', None)
         self._service = service
         self._parameters = self._init_parameters(**kwargs)
-        self.logger = logging.getLogger(
-            f'{__name__}.{self.__class__.__name__}',
-        )
+        self._last_update = None
 
     "Map device physical states to IFTTT service_event names."
     states_events_mapping: dict = {
@@ -58,13 +100,20 @@ class SmartDevice(ABC):
     def state(self) -> State:
         return self._state
 
-    @property
-    def bus(self) -> EventBus:
-        return self._bus
-
     @state.setter
     def state(self, state: SmartDevice.State):
         self._state = state
+
+    @property
+    def last_update(self) -> int:
+        if self._last_update is None: return math.inf
+
+        now = datetime.now()
+        duration = now - self._last_update
+        return int(duration.total_seconds())
+
+    def update(self) -> None:
+        self._last_update = datetime.now()
 
     @abstractmethod
     def _init_parameters(self, **kwargs) -> SmartDeviceParameters:
@@ -79,8 +128,6 @@ class LightBulb(SmartDevice):
 
     def __init__(self, service: BaseService, *args, **kwargs):
         super().__init__(service, *args, **kwargs)
-        self.bus.add_event(self.switch_on, 'bedroom')
-        self.bus.add_event(self.switch_off, 'bedroom')
 
     def _init_parameters(self, **kwargs) -> LightBulbParameters:
         """
@@ -92,22 +139,28 @@ class LightBulb(SmartDevice):
     def _change_state(self, state: SmartDevice.State, **kwargs) -> ServiceResponse:
         self.logger.debug(f"Invoked _change_state with '{state}'")
 
-        if state != self.state:
-            service_event = self._state_to_service_event(state)
-            params = kwargs.get('parameters')
-            # get parameters from kwargs, if not None, else get the instance ones
-            params = params if params else self.parameters
-            response = self._service.trigger(
-                event_name=service_event,
-                parameters=params.to_dict()
-            )
+        # throttle requests to service
+        if (last_update := self.last_update) < SmartDevice.UPDATES_THROTTLE:
+            remaining = SmartDevice.UPDATES_THROTTLE - last_update
+            message = f'Please wait {remaining}'
+            self.logger.debug(message)
+            return ServiceResponse(False, message)
 
-            if response.success:
-                self.state = state
+        service_event = self._state_to_service_event(state)
 
-            return response
+        # get parameters from kwargs, if not None, else get the instance ones
+        params = kwargs.get('parameters')
+        params = params if params else self.parameters
+        response = self._service.trigger(
+            event_name=service_event,
+            parameters=params.to_dict()
+        )
 
-        return ServiceResponse(True, f'{self.name} is already {self.state}')
+        if response.success:
+            self.state = state
+            self.update()
+
+        return response
 
     def switch_on(self, **kwargs) -> ServiceResponse:
         params = kwargs.get('parameters')

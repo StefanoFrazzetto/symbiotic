@@ -20,6 +20,6 @@ class Application(containers.DeclarativeContainer):
     bus = providers.Singleton(EventBus)
 
     ifttt = providers.Singleton(IFTTT, config=config.services.IFTTT)
-    light_bulb = providers.Factory(LightBulb, service=ifttt, bus=bus)
+    light_bulb = providers.Factory(LightBulb, service=ifttt)
 
-    sensor = providers.Factory(MotionSensor, name='bedroom', pin=4, bus=bus)
+    sensor = providers.Factory(MotionSensor, name='bedroom', pin=4)
