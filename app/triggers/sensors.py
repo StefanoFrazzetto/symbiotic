@@ -1,10 +1,11 @@
 from abc import ABC
 
 from app import bus
+from app.core.interfaces import Loggable
 from gpiozero import MotionSensor as GPIOZeroMotionSensor
 
 
-class MotionSensor(object):
+class MotionSensor(Loggable):
 
     name: str
     sensor: GPIOZeroMotionSensor
@@ -17,9 +18,9 @@ class MotionSensor(object):
         self.sensor.when_no_motion = self.inactive
 
     def active(self):
-        print(f'emitting {self.name} switch_on')
+        self.logger.debug(f'emitting {self.name} switch_on')
         bus.emit(f'{self.name}:active')
 
     def inactive(self):
-        print(f'emitting {self.name} switch_on')
+        self.logger.debug(f'emitting {self.name} switch_on')
         bus.emit(f'{self.name}:inactive')
