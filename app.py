@@ -16,8 +16,10 @@ def main(light_bulb: LightBulb = Provide[Application.light_bulb], sensor: Motion
     logging.info("Application started.")
     # use pigpio for security (network daemon instead of root owner /dev/gpiomem)
     Device.pin_factory = PiGPIOFactory()
-    light_bulb.action(on='bedroom:active', do=light_bulb.switch_on)
-    light_bulb.action(on='bedroom:inactive', do=light_bulb.switch_on)
+    light_bulb.event(on='bedroom:active').do(light_bulb.switch_on)
+    # light_bulb.event(on='bedroom:inactive', do=light_bulb.switch_on)
+
+    light_bulb.schedule().day.at('18:09')
 
     while True:
         scheduler.run_pending()

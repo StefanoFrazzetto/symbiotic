@@ -16,46 +16,92 @@ from .parameters import LightBulbParameters, SmartDeviceParameters
 
 
 @dataclass
-class Action(object):
-    source: SmartDevice
-    event: str
+class Action(ABC):
+    name: str
     job: Callable
-    when: str
 
-    def __init__(self, on: str, do: Callable, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        self.name = 'not-unique-at-all'
+        self.job = kwargs.pop('do', None)
+        print(kwargs)
         super().__init__(*args, **kwargs)
-        self.event = on
-        self.job = do
 
     def __call__(self, *args, **kwargs):
         self.job(*args, **kwargs)
 
-    def register(self):
+    def do(self, job: Callable):
+        self.job = job
+
+    @abstractmethod
+    def register(self) -> Action:
+        pass
+
+    @abstractmethod
+    def deregister(self) -> None:
+        pass
+
+
+class SchedulableAction(Action):
+
+    at: datetime.date
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def register(self) -> SchedulableAction:
+        """ Registeres the action in the scheduler. """
+        # TODO: This should probably generate a unique id.
+        print('registering event on scheduler')
+        return scheduler.every().tag(self.name)
+
+    def deregister(self):
+        """ Removes an action from the scheduler. """
+        # Should probably use the tag to remove it. Unique id?
+        print('removing event from scheduler')
+        return scheduler.clear(self.name)
+
+
+class EventableAction(Action):
+
+    event: str
+
+    def __init__(self, *args, **kwargs):
+        self.event = kwargs.pop('on')
+        super().__init__(*args, **kwargs)
+
+    def register(self) -> EventableAction:
         """ Registers the action with the bus. """
         bus.add_event(self.job, self.event)
-        print(f'even {self.event} registered')
+        print(f'{self.event} registered on bus')
+        return self
 
-    def schedule(self):
-        raise NotImplementedError('TODO')
+    def deregister(self):
+        """ Removes the action from the bus. """
+        bus.remove_event(self.job, self.event)
+        print(f'{self.event} de-registered from bus')
 
 
-class Eventable(ABC):
+class Actionable(ABC):
 
     actions: List[Action]
 
     def __init__(self, *args, **kwargs):
-        print(kwargs)
         super().__init__(*args, **kwargs)
         self.actions = []
 
-    def action(self, *args, **kwargs) -> None:
+    def event(self, *args, **kwargs) -> Action:
         # TODO: add checking for different types, e.g. tuples or kwargs
-        action = Action(**kwargs)
-        action.register()
+        action = EventableAction(**kwargs)
         self.actions.append(action)
+        return action.register()
+
+    def schedule(self, *args, **kwargs) -> Action:
+        action = SchedulableAction(**kwargs)
+        self.actions.append(action)
+        return action.register()
 
 
-class SmartDevice(Loggable, Eventable, ABC):
+class SmartDevice(Loggable, Actionable, ABC):
     """
     SmartDevice encapsulates the methods to control any smart device.
     """
@@ -106,7 +152,8 @@ class SmartDevice(Loggable, Eventable, ABC):
 
     @property
     def last_update(self) -> int:
-        if self._last_update is None: return math.inf
+        if self._last_update is None:
+            return math.inf
 
         now = datetime.now()
         duration = now - self._last_update
@@ -142,7 +189,7 @@ class LightBulb(SmartDevice):
         # throttle requests to service
         if (last_update := self.last_update) < SmartDevice.UPDATES_THROTTLE:
             remaining = SmartDevice.UPDATES_THROTTLE - last_update
-            message = f'Please wait {remaining}'
+            message = f'Please wait {remaining} seconds...'
             self.logger.debug(message)
             return ServiceResponse(False, message)
 
