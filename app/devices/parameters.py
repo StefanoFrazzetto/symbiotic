@@ -1,11 +1,13 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
+
 class SmartDeviceParameters(ABC):
 
     @abstractmethod
     def to_dict(self) -> dict:
-        pass    
+        pass
+
 
 class LightBulbParameters(SmartDeviceParameters):
 
