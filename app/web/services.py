@@ -8,7 +8,7 @@ from ..core.exceptions import ConfigurationError
 
 class BaseService(ABC):
 
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         self.logger = logging.getLogger(
             f'{__name__}.{self.name}',
         )
@@ -26,8 +26,8 @@ class IFTTT(BaseService):
 
     DEFAULT_URL = 'https://maker.ifttt.com/trigger/{event_name}/with/key/{key}'
 
-    def __init__(self, config):
-        super().__init__()
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         try:
             self._url = config.get('url', IFTTT.DEFAULT_URL)
             self._key = config.pop('key')
@@ -35,7 +35,7 @@ class IFTTT(BaseService):
             raise ConfigurationError(
                 'You must add your IFTTT parameters to your config.yaml file')
 
-    def trigger(self, **kwargs) -> ServiceResponse:
+    def trigger(self, *args, **kwargs) -> ServiceResponse:
         """Triggers the IFTTT webhook 'event_name' with 'parameters'.
 
         Parameters
