@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import atexit
 import functools
 import math
 from abc import ABC, abstractmethod
@@ -23,8 +24,7 @@ class Action(Loggable, ABC):
 
     def __init__(self, *args, **kwargs):
         self.name = 'not-unique-at-all'
-        self.job = kwargs.pop('do', None)
-        print(kwargs)
+        atexit.register(self.deregister)  # register cleanup function
         super().__init__(*args, **kwargs)
 
     def __call__(self, *args, **kwargs):
