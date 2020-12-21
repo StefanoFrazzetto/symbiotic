@@ -5,11 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: app.py",
+            "name": "Python: app.py (JMC)",
             "type": "python",
             "request": "launch",
             "program": "app.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: app.py (ALL)",
+            "type": "python",
+            "request": "launch",
+            "program": "app.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
         {
             "name": "Python: Current File",
