@@ -90,14 +90,16 @@ class Actionable(ABC):
         super().__init__(*args, **kwargs)
         self.actions = []
 
-    def event(self, *args, **kwargs) -> Action:
+    @property
+    def event(self) -> Action:
         # TODO: add checking for different types, e.g. tuples or kwargs
-        action = EventableAction(**kwargs)
+        action = EventableAction()
         self.actions.append(action)
         return action.register()
 
-    def schedule(self, *args, **kwargs) -> Action:
-        action = SchedulableAction(**kwargs)
+    @property
+    def schedule(self) -> Action:
+        action = SchedulableAction()
         self.actions.append(action)
         return action.register()
 
