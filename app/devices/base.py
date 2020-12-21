@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import math
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -29,8 +30,8 @@ class Action(Loggable, ABC):
     def __call__(self, *args, **kwargs):
         self.job(*args, **kwargs)
 
-    def do(self, job: Callable):
-        self.job = job
+    def do(self, job: Callable, *args, **kwargs):
+        self.job = functools.partial(job, *args, **kwargs)
 
     @abstractmethod
     def register(self) -> Action:
