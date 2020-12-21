@@ -16,7 +16,7 @@ from .parameters import LightBulbParameters, SmartDeviceParameters
 
 
 @dataclass
-class Action(ABC):
+class Action(Loggable, ABC):
     name: str
     job: Callable
 
@@ -51,14 +51,14 @@ class SchedulableAction(Action):
     def register(self) -> SchedulableAction:
         """ Registeres the action in the scheduler. """
         # TODO: This should probably generate a unique id.
-        print('registering event on scheduler')
         return scheduler.every().tag(self.name)
+        self.logger.debug(f'registered {self.name} on scheduler')
 
-    def deregister(self):
+    def deregister(self) -> None:
         """ Removes an action from the scheduler. """
         # Should probably use the tag to remove it. Unique id?
-        print('removing event from scheduler')
-        return scheduler.clear(self.name)
+        scheduler.clear(self.name)
+        self.logger.debug(f'removed {self.name} from scheduler')
 
 
 class EventableAction(Action):
@@ -71,14 +71,12 @@ class EventableAction(Action):
 
     def register(self) -> EventableAction:
         """ Registers the action with the bus. """
-        bus.add_event(self.job, self.event)
-        print(f'{self.event} registered on bus')
+        self.logger.debug(f'{self.event} registered on bus')
         return self
 
-    def deregister(self):
+    def deregister(self) -> None:
         """ Removes the action from the bus. """
-        bus.remove_event(self.job, self.event)
-        print(f'{self.event} de-registered from bus')
+        self.logger.debug(f'removed {self.event} from bus')
 
 
 class Actionable(ABC):
