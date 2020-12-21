@@ -153,6 +153,32 @@ class SmartDevice(Loggable, Actionable, ABC):
     def state(self, state: SmartDevice.State):
         self._state = state
 
+    def _change_state(self, state: SmartDevice.State, **kwargs) -> ServiceResponse:
+        self.logger.debug(f"Invoked _change_state with '{state}'")
+
+        # throttle requests to service
+        if (last_update := self.last_update) < SmartDevice.UPDATES_THROTTLE:
+            remaining = SmartDevice.UPDATES_THROTTLE - last_update
+            message = f'Please wait {remaining} seconds...'
+            self.logger.debug(message)
+            return ServiceResponse(False, message)
+
+        service_event = self._state_to_service_event(state)
+
+        # get parameters from kwargs, if not None, else get the instance ones
+        params = kwargs.get('parameters')
+        params = params if params else self.parameters
+        response = self._service.trigger(
+            event_name=service_event,
+            parameters=params.to_dict()
+        )
+
+        if response.success:
+            self.state = state
+            self.update()
+
+        return response
+
     @property
     def last_update(self) -> int:
         if self._last_update is None:
@@ -185,32 +211,6 @@ class LightBulb(SmartDevice):
         """
         parameters = kwargs.get('parameters')
         return LightBulbParameters(parameters)
-
-    def _change_state(self, state: SmartDevice.State, **kwargs) -> ServiceResponse:
-        self.logger.debug(f"Invoked _change_state with '{state}'")
-
-        # throttle requests to service
-        if (last_update := self.last_update) < SmartDevice.UPDATES_THROTTLE:
-            remaining = SmartDevice.UPDATES_THROTTLE - last_update
-            message = f'Please wait {remaining} seconds...'
-            self.logger.debug(message)
-            return ServiceResponse(False, message)
-
-        service_event = self._state_to_service_event(state)
-
-        # get parameters from kwargs, if not None, else get the instance ones
-        params = kwargs.get('parameters')
-        params = params if params else self.parameters
-        response = self._service.trigger(
-            event_name=service_event,
-            parameters=params.to_dict()
-        )
-
-        if response.success:
-            self.state = state
-            self.update()
-
-        return response
 
     def switch_on(self, **kwargs) -> ServiceResponse:
         params = kwargs.get('parameters')
