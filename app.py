@@ -8,7 +8,7 @@ from gpiozero import Device
 
 from app.core.containers import Application
 from app.devices.base import LightBulb
-from app.triggers.sensors import MotionSensor
+from app.devices.sensors import MotionSensor
 from app import scheduler
 
 
@@ -16,10 +16,9 @@ def main(light_bulb: LightBulb = Provide[Application.light_bulb], sensor: Motion
     logging.info("Application started.")
     # use pigpio for security (network daemon instead of root owner /dev/gpiomem)
     Device.pin_factory = PiGPIOFactory()
-    light_bulb.event(on='bedroom:active').do(light_bulb.switch_on)
-    # light_bulb.event(on='bedroom:inactive', do=light_bulb.switch_on)
+    light_bulb.event.on('bedroom:active').do(light_bulb.switch_on)
 
-    light_bulb.schedule().day.at('18:09')
+    light_bulb.schedule.day.at('13:15').do(light_bulb.switch_off)
 
     while True:
         scheduler.run_pending()
