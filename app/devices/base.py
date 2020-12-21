@@ -1,107 +1,15 @@
 from __future__ import annotations
 
-import atexit
-import functools
 import math
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Callable, List
 
-from app import bus, scheduler
-from app.core.interfaces import Loggable
-
+from ..core.interfaces import Loggable
+from .actions import Actionable
 from ..web.responses import ServiceResponse
 from ..web.services import BaseService
 from .parameters import LightBulbParameters, SmartDeviceParameters
-
-
-@dataclass
-class Action(Loggable, ABC):
-    name: str
-    job: Callable
-
-    def __init__(self, *args, **kwargs):
-        self.name = 'not-unique-at-all'
-        atexit.register(self.deregister)  # register cleanup function
-        super().__init__(*args, **kwargs)
-
-    def __call__(self, *args, **kwargs):
-        self.job(*args, **kwargs)
-
-    def do(self, job: Callable, *args, **kwargs):
-        self.job = functools.partial(job, *args, **kwargs)
-
-    @abstractmethod
-    def register(self) -> Action:
-        pass
-
-    @abstractmethod
-    def deregister(self) -> None:
-        pass
-
-
-class SchedulableAction(Action):
-
-    at: datetime.date
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def register(self) -> SchedulableAction:
-        """ Registeres the action in the scheduler. """
-        # TODO: This should probably generate a unique id.
-        return scheduler.every().tag(self.name)
-        self.logger.debug(f'registered {self.name} on scheduler')
-
-    def deregister(self) -> None:
-        """ Removes an action from the scheduler. """
-        # Should probably use the tag to remove it. Unique id?
-        scheduler.clear(self.name)
-        self.logger.debug(f'removed {self.name} from scheduler')
-
-
-class EventableAction(Action):
-
-    event: str
-
-    def __init__(self, *args, **kwargs):
-        self.event = kwargs.pop('on')
-        super().__init__(*args, **kwargs)
-
-    def register(self) -> EventableAction:
-        """ Registers the action with the bus. """
-        bus.add_event(self, self.event)
-        self.logger.debug(f'{self.event} registered on bus')
-        return self
-
-    def deregister(self) -> None:
-        """ Removes the action from the bus. """
-        bus.remove_event(self, self.event)
-        self.logger.debug(f'removed {self.event} from bus')
-
-
-class Actionable(ABC):
-
-    actions: List[Action]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.actions = []
-
-    @property
-    def event(self) -> Action:
-        # TODO: add checking for different types, e.g. tuples or kwargs
-        action = EventableAction()
-        self.actions.append(action)
-        return action.register()
-
-    @property
-    def schedule(self) -> Action:
-        action = SchedulableAction()
-        self.actions.append(action)
-        return action.register()
 
 
 class SmartDevice(Loggable, Actionable, ABC):
