@@ -72,11 +72,13 @@ class EventableAction(Action):
 
     def register(self) -> EventableAction:
         """ Registers the action with the bus. """
+        bus.add_event(self, self.event)
         self.logger.debug(f'{self.event} registered on bus')
         return self
 
     def deregister(self) -> None:
         """ Removes the action from the bus. """
+        bus.remove_event(self, self.event)
         self.logger.debug(f'removed {self.event} from bus')
 
 
