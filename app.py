@@ -16,12 +16,13 @@ from app.web.services import IFTTT
 def main(ifttt: IFTTT = Provide[Application.ifttt]):
     logging.info("Application started.")
     # use pigpio for security (network daemon instead of root owner /dev/gpiomem)
-    Device.pin_factory = PiGPIOFactory()
+    Device.pin_factory = PiGPIOFactory('ubuntu', 8888)
     motion_sensor = GPIOMotionSensor('bedroom', 4)
 
     light_bulb = LightBulb('bedroom', ifttt)
-    light_bulb.event.on('bedroom:active').do(light_bulb.switch_on)
-    light_bulb.schedule.day.at('13:25').do(light_bulb.switch_off)
+    light_bulb.event('bedroom:active').do(light_bulb.switch_on)
+    with light_bulb.schedule(light_bulb.switch_off) as schedule:
+        schedule.day.at('19:00')
 
     while True:
         scheduler.run_pending()
