@@ -1,11 +1,8 @@
 import logging.config
 
-from ..web.services import IFTTT
-from ..devices.base import LightBulb
-from ..triggers.sensors import MotionSensor
+from dependency_injector import containers, providers
 
-from event_bus import EventBus
-from dependency_injector import providers, containers
+from ..web.services import IFTTT
 
 
 class Application(containers.DeclarativeContainer):
@@ -17,9 +14,4 @@ class Application(containers.DeclarativeContainer):
         config.logging
     )
 
-    bus = providers.Singleton(EventBus)
-
     ifttt = providers.Singleton(IFTTT, config=config.services.IFTTT)
-    light_bulb = providers.Factory(LightBulb, service=ifttt)
-
-    sensor = providers.Factory(MotionSensor, name='bedroom', pin=4)

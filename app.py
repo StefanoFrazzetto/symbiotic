@@ -1,24 +1,27 @@
 import logging
-import time
 import sys
+import time
 
 from dependency_injector.wiring import Provide
-from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import Device
+from gpiozero.pins.pigpio import PiGPIOFactory
 
+from app import scheduler
 from app.core.containers import Application
 from app.devices.base import LightBulb
-from app.devices.sensors import MotionSensor
-from app import scheduler
+from app.devices.sensors import GPIOMotionSensor
+from app.web.services import IFTTT
 
 
-def main(light_bulb: LightBulb = Provide[Application.light_bulb], sensor: MotionSensor = Provide[Application.sensor]):
+def main(ifttt: IFTTT = Provide[Application.ifttt]):
     logging.info("Application started.")
     # use pigpio for security (network daemon instead of root owner /dev/gpiomem)
     Device.pin_factory = PiGPIOFactory()
-    light_bulb.event.on('bedroom:active').do(light_bulb.switch_on)
+    motion_sensor = GPIOMotionSensor('bedroom', 4)
 
-    light_bulb.schedule.day.at('13:15').do(light_bulb.switch_off)
+    light_bulb = LightBulb('bedroom', ifttt)
+    light_bulb.event.on('bedroom:active').do(light_bulb.switch_on)
+    light_bulb.schedule.day.at('13:25').do(light_bulb.switch_off)
 
     while True:
         scheduler.run_pending()
