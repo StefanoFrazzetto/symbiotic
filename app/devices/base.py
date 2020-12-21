@@ -123,9 +123,9 @@ class SmartDevice(Loggable, Actionable, ABC):
     _parameters: SmartDeviceParameters  # colour, brightness, etc.
     _service: BaseService  # service used to control the device, e.g IFTTT
 
-    def __init__(self, service: BaseService, *args, **kwargs) -> None:
+    def __init__(self, name: str, service: BaseService, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._name = kwargs.pop('name', 'smart device')
+        self._name = name
         self._state = kwargs.get('state')
         self._service = service
         self._parameters = self._init_parameters(**kwargs)
@@ -202,8 +202,8 @@ class SmartDevice(Loggable, Actionable, ABC):
 
 class LightBulb(SmartDevice):
 
-    def __init__(self, service: BaseService, *args, **kwargs):
-        super().__init__(service, *args, **kwargs)
+    def __init__(self, name: str, service: BaseService, *args, **kwargs):
+        super().__init__(name, service, *args, **kwargs)
 
     def _init_parameters(self, **kwargs) -> LightBulbParameters:
         """
