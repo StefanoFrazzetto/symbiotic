@@ -5,10 +5,10 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 
-from ..core.interfaces import Loggable
+from app.core.interfaces import Loggable
 from .actions import Actionable
-from ..web.responses import ServiceResponse
-from ..web.services import BaseService
+from app.services.responses import ServiceResponse
+from app.services import BaseService
 from .parameters import LightBulbParameters, SmartDeviceParameters
 
 
