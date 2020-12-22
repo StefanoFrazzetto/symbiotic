@@ -3,13 +3,12 @@ from __future__ import annotations
 import atexit
 import functools
 import secrets
-from abc import ABC, abstractmethod
+from abc import ABC
 from contextlib import contextmanager
-from typing import Any, Callable, List
+from typing import Callable, List
 
 from app import bus, scheduler
 from app.core.interfaces import Loggable
-from schedule import Job
 
 
 class Action(Loggable):
@@ -70,7 +69,6 @@ class ActionScheduler(Loggable):
         self.scheduler_jobs = []
         atexit.register(self.clear)
 
-    @property
     def every(self, interval: int = 1):
         job = scheduler.every(interval).tag(self.tag)
         self.scheduler_jobs.append(job)
@@ -107,9 +105,10 @@ class Actionable(ABC):
         and to set the scheduled job's job (i.e. this action) from within
         this method, which gives us more control.
 
-        > with device.schedule(action) as schedule:
-        >> schedule.day.at('08.30')
-        >> schedule.day.at('11.30')
+        Example:
+            >>> with device.schedule(device.action) as schedule:
+            >>>     schedule.every().day.at('08.30')
+            >>>     schedule.every(5).days.at('11.30')
         """
         scheduler = ActionScheduler(job, **kwargs)
         yield scheduler
