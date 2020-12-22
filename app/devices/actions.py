@@ -71,8 +71,8 @@ class ActionScheduler(Loggable):
         atexit.register(self.clear)
 
     @property
-    def every(self):
-        job = scheduler.every().tag(self.tag)
+    def every(self, interval: int = 1):
+        job = scheduler.every(interval).tag(self.tag)
         self.scheduler_jobs.append(job)
         return job
 
