@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 class SmartDeviceParameters(ABC):
 
     @abstractmethod
-    def to_dict(self) -> dict:
+    def ifttt(self) -> dict:
         pass
 
 
@@ -16,7 +16,7 @@ class LightBulbParameters(SmartDeviceParameters):
         self._brightness = kwargs.get('brightness', 100)
         self._transition_duration = kwargs.get('transition_duration', 1000)
 
-    def to_dict(self) -> dict:
+    def ifttt(self) -> dict:
         return {
             'value1': self._brightness,
             'value2': self._color,
