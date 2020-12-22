@@ -2,7 +2,7 @@ import logging.config
 
 from dependency_injector import containers, providers
 
-from ..web.services import IFTTT
+from app.services import IFTTT
 
 
 class Application(containers.DeclarativeContainer):

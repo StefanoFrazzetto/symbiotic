@@ -10,7 +10,7 @@ from app import scheduler
 from app.core.containers import Application
 from app.devices.base import LightBulb
 from app.devices.sensors import GPIOMotionSensor
-from app.web.services import IFTTT
+from app.services import IFTTT
 
 
 def main(ifttt: IFTTT = Provide[Application.ifttt]):

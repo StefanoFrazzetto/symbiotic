@@ -1,25 +1,8 @@
-import logging
 import requests
 
-from abc import ABC, abstractmethod
-from .responses import ServiceResponse
 from ..core.exceptions import ConfigurationError
-
-
-class BaseService(ABC):
-
-    def __init__(self, *args, **kwargs) -> None:
-        self.logger = logging.getLogger(
-            f'{__name__}.{self.name}',
-        )
-
-    @property
-    def name(self) -> str:
-        return self.__class__.__name__
-
-    @abstractmethod
-    def trigger(self, *args, **kwargs) -> ServiceResponse:
-        pass
+from .base import BaseService
+from .responses import ServiceResponse
 
 
 class IFTTT(BaseService):
