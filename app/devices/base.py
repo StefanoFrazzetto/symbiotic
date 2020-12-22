@@ -36,7 +36,7 @@ class SmartDevice(Loggable, Actionable, ABC):
         self._name = name
         self._state = kwargs.get('state')
         self._service = service
-        self._parameters = self._init_parameters(**kwargs)
+        self._parameters = self._default_parameters()
         self._last_update = None
 
     "Map device physical states to IFTTT service_event names."
@@ -78,7 +78,7 @@ class SmartDevice(Loggable, Actionable, ABC):
         params = params if params else self.parameters
         response = self._service.trigger(
             event_name=service_event,
-            parameters=params.to_dict()
+            parameters=params
         )
 
         if response.success:
@@ -100,7 +100,7 @@ class SmartDevice(Loggable, Actionable, ABC):
         self._last_update = datetime.now()
 
     @abstractmethod
-    def _init_parameters(self, **kwargs) -> SmartDeviceParameters:
+    def _default_parameters(self) -> SmartDeviceParameters:
         pass
 
     @property
@@ -113,12 +113,11 @@ class LightBulb(SmartDevice):
     def __init__(self, name: str, service: BaseService, *args, **kwargs):
         super().__init__(name, service, *args, **kwargs)
 
-    def _init_parameters(self, **kwargs) -> LightBulbParameters:
+    def _default_parameters(self) -> LightBulbParameters:
         """
         Override the abstract method, proving params for the concrete class.
         """
-        parameters = kwargs.get('parameters')
-        return LightBulbParameters(parameters)
+        return LightBulbParameters()
 
     def switch_on(self, **kwargs) -> ServiceResponse:
         params = kwargs.get('parameters')
