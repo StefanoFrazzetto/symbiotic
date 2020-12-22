@@ -17,7 +17,7 @@ class Action(Loggable):
     def __init__(self, func: Callable = None, **kwargs):
         super().__init__(**kwargs)
         self.name = kwargs.pop('name', secrets.token_hex(16))
-        self.func = None
+        self.func = functools.partial(func, **kwargs) if func else None
         atexit.register(self.unregister)
 
     def __eq__(self, other: Action):
