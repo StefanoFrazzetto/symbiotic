@@ -22,7 +22,8 @@ def main(ifttt: IFTTT = Provide[Application.ifttt]):
     light_bulb = LightBulb('bedroom', ifttt)
     light_bulb.event('bedroom:active').do(light_bulb.switch_on)
     with light_bulb.schedule(light_bulb.switch_off) as schedule:
-        schedule.day.at('19:00')
+        schedule.every.day.at('12:43')
+        schedule.every.day.at('19:00')
 
     while True:
         scheduler.run_pending()
