@@ -15,6 +15,10 @@ from .parameters import LightBulbParameters, SmartDeviceParameters
 class SmartDevice(Loggable, Actionable, ABC):
     """
     SmartDevice encapsulates the methods to control any smart device.
+
+    Devices are controlled through a BaseService; using the facade pattern
+    here allows to add more services in the future without refactoring,
+    improves readability, and reduces code coupling.
     """
 
     UPDATES_THROTTLE: int = 5
