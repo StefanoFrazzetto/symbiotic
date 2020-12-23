@@ -4,6 +4,7 @@ autopep8==1.5.4
 certifi==2020.11.8
 chardet==3.0.4
 colorzero==1.1
+colour==0.1.5
 dependency-injector==4.3.6
 event-bus==1.0.2
 gpiozero==1.5.1

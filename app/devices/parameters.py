@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-import re
+
+from colour import Color
 
 
 class Parameters(ABC):
@@ -55,19 +56,16 @@ class LightBulbParameters(Parameters):
             'value3': self._transition_duration
         }
 
-    @staticmethod
-    def _rgb_to_hex(rgb: tuple) -> str:
-        return '#%02x%02x%02x' % rgb
-
     def color(self, color) -> LightBulbParameters:
+        def rgb_to_hex(rgb: tuple) -> str:
+            return '#%02x%02x%02x' % rgb
+
         if type(color) is str:
-            match = re.search(r'^#(?:[0-9a-fA-F]{3}){1,2}$', color)
-            if match:
-                self._color = color
+            self._color = Color(color).hex
             return self
 
         if type(color) is tuple:
-            self._color = self._rgb_to_hex((color[0], color[1], color[2]))
+            self._color = rgb_to_hex((color[0], color[1], color[2]))
             return self
 
         raise ValueError(

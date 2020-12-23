@@ -20,7 +20,7 @@ def main(ifttt: IFTTT = Provide[Application.ifttt]):
     motion_sensor = GPIOMotionSensor('bedroom', 4)
 
     light_bulb = LightBulb('bedroom', ifttt)
-    light_bulb.event(motion_sensor.active).do(light_bulb.switch_on, color=(255, 255, 100), transition_duration=5)
+    light_bulb.event(motion_sensor.active).do(light_bulb.switch_on, color='orange', transition_duration=5)
     with light_bulb.schedule(light_bulb.switch_off) as schedule:
         schedule.every().day.at('14:25')
         schedule.every().day.at('19:00')
