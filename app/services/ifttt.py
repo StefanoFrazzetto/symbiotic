@@ -45,9 +45,9 @@ class IFTTT(BaseService):
             An optional dictionary containing the parameters to pass with the request.
             It can contain one to three parameters defined as follows:
             {
-                (optional)'value1': '...',
-                'value2': '...',
-                'value3': '...'
+                (Optional) 'value1': '...',
+                (Optional) 'value2': '...',
+                (Optional) 'value3': '...'
             }
 
         """
