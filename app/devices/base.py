@@ -9,7 +9,7 @@ from app.core.interfaces import Loggable
 from .actions import Actionable
 from app.services.responses import ServiceResponse
 from app.services import BaseService
-from .parameters import LightBulbParameters, SmartDeviceParameters
+from .parameters import LightBulbParameters, Parameters
 
 
 class SmartDevice(Loggable, Actionable, ABC):
@@ -32,7 +32,7 @@ class SmartDevice(Loggable, Actionable, ABC):
 
     _name: str  # name of the device
     _state: State  # on or off
-    _parameters: SmartDeviceParameters  # colour, brightness, etc.
+    _parameters: Parameters  # colour, brightness, etc.
     _service: BaseService  # service used to control the device, e.g IFTTT
 
     def __init__(self, name: str, service: BaseService, *args, **kwargs) -> None:
@@ -40,7 +40,7 @@ class SmartDevice(Loggable, Actionable, ABC):
         self._name = name
         self._state = kwargs.get('state')
         self._service = service
-        self._parameters = self._default_parameters()
+        self._parameters = self.default_parameters
         self._last_update = None
 
     "Map device physical states to IFTTT service_event names."
@@ -65,8 +65,8 @@ class SmartDevice(Loggable, Actionable, ABC):
     def state(self, state: SmartDevice.State):
         self._state = state
 
-    def _change_state(self, state: SmartDevice.State, **kwargs) -> ServiceResponse:
-        self.logger.debug(f"Invoked _change_state with '{state}'")
+    def _change_state(self, state: SmartDevice.State, **params) -> ServiceResponse:
+        self.logger.debug(f"Invoked _change_state: '{state}' with '{params}'")
 
         # throttle requests to service
         if (last_update := self.last_update) < SmartDevice.UPDATES_THROTTLE:
@@ -75,16 +75,24 @@ class SmartDevice(Loggable, Actionable, ABC):
             self.logger.debug(message)
             return ServiceResponse(False, message)
 
+        if type(params) is dict:
+            # update current parameters with the ones passed
+            self.parameters.update(**params)
+        else:
+            # unexpected type of params
+            if params is not None or not issubclass(type(params), Parameters):
+                raise ValueError(f'Invalid parameters type: {params}')
+
+        # map the event enum to its string
         service_event = self._state_to_service_event(state)
 
-        # get parameters from kwargs, if not None, else get the instance ones
-        params = kwargs.get('parameters')
-        params = params if params else self.parameters
+        # trigger the service
         response = self._service.trigger(
             event_name=service_event,
-            parameters=params
+            parameters=self.parameters
         )
 
+        # update the state and last-update timestamp
         if response.success:
             self.state = state
             self.update()
@@ -103,12 +111,14 @@ class SmartDevice(Loggable, Actionable, ABC):
     def update(self) -> None:
         self._last_update = datetime.now()
 
+    @property
     @abstractmethod
-    def _default_parameters(self) -> SmartDeviceParameters:
+    def default_parameters(self) -> Parameters:
+        """ Subclasses must provide their own type of parameters. """
         pass
 
     @property
-    def parameters(self) -> SmartDeviceParameters:
+    def parameters(self) -> Parameters:
         return self._parameters
 
 
@@ -117,16 +127,12 @@ class LightBulb(SmartDevice):
     def __init__(self, name: str, service: BaseService, *args, **kwargs):
         super().__init__(name, service, *args, **kwargs)
 
-    def _default_parameters(self) -> LightBulbParameters:
-        """
-        Override the abstract method, proving params for the concrete class.
-        """
+    @property
+    def default_parameters(self) -> LightBulbParameters:
         return LightBulbParameters()
 
-    def switch_on(self, **kwargs) -> ServiceResponse:
-        params = kwargs.get('parameters')
-        return self._change_state(SmartDevice.State.ON, parameters=params)
+    def switch_on(self, **params) -> ServiceResponse:
+        return self._change_state(SmartDevice.State.ON, **params)
 
-    def switch_off(self, **kwargs) -> ServiceResponse:
-        params = kwargs.get('parameters')
-        return self._change_state(SmartDevice.State.OFF, parameters=params)
+    def switch_off(self, **params) -> ServiceResponse:
+        return self._change_state(SmartDevice.State.OFF, **params)

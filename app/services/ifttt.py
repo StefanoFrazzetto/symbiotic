@@ -1,9 +1,11 @@
 import requests
+from typing import Any
 
-from ..core.exceptions import ConfigurationError
+from app.devices.parameters import Parameters
+from app.core.exceptions import ConfigurationError
 from .base import BaseService
-from app.devices.parameters import SmartDeviceParameters
 from .responses import ServiceResponse
+from schema import Schema, Optional, And, Or
 
 
 class IFTTT(BaseService):
@@ -19,42 +21,19 @@ class IFTTT(BaseService):
             raise ConfigurationError(
                 'You must add your IFTTT parameters to your config.yaml file')
 
-    def _validate_parameters(self, *args, **kwargs) -> dict:
-        parameters = {}
+    def _validate_parameters(self, parameters: Any = None) -> dict:
+        if issubclass(type(parameters), Parameters):
+            parameters = parameters.ifttt()
 
-        def validate_length(item):
-            if len(params) > 3:
-                raise ValueError(
-                    f'The number of parameters must be three or less, got {item}.')
+        schema = Schema({
+            Optional('value1'): And(Or(int, float, str)),
+            Optional('value2'): And(Or(int, float, str)),
+            Optional('value3'): And(Or(int, float, str)),
+        }, ignore_extra_keys=True)
 
-        def create_dict(items: iter):
-            i = 1
-            params = {}
-            for value in items:
-                params[f'value{i}'] = value
-                i += 1
-            return params
+        return schema.validate(parameters)
 
-        # check kwargs for SmartDeviceParameters or dict
-        if (params := kwargs.get('parameters')) is not None:
-            if issubclass(type(params), SmartDeviceParameters):
-                parameters = params.ifttt()
-            elif type(params) is dict:
-                validate_length(params)
-                parameters = create_dict(params.values())
-            else:
-                raise ValueError(f'Invalid type for parameters: {params}.')
-        # unpack parameters passed as args
-        elif args is not None:
-            validate_length(args)
-            parameters = create_dict(args)
-        else:
-            if len(args) > 0 or len(kwargs) > 0:
-                raise ValueError(f'Invalid parameters provided: args: {args}, kwargs: {kwargs}.')
-
-        return parameters
-
-    def trigger(self, event_name: str, *args, **kwargs) -> ServiceResponse:
+    def trigger(self, event_name: str, parameters: Any = None) -> ServiceResponse:
         """Triggers the IFTTT webhook 'event_name' with 'parameters'.
 
         Parameters
@@ -66,16 +45,17 @@ class IFTTT(BaseService):
             An optional dictionary containing the parameters to pass with the request.
             It can contain one to three parameters defined as follows:
             {
-                'value1': '...',
+                (optional)'value1': '...',
                 'value2': '...',
                 'value3': '...'
             }
 
         """
-        parameters = self._validate_parameters(*args, **kwargs)
+        parameters = self._validate_parameters(parameters)
         url = self._url.format(event_name=event_name, key=self._key)
-
         response = requests.post(url, parameters)
-        self.logger.debug(response.text)
+
+        self.logger.debug(f'Request body: {response.request.body}')
+        self.logger.debug(f'Response: {response.text}')
 
         return ServiceResponse.from_response(response)

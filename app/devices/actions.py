@@ -28,8 +28,8 @@ class Action(Loggable):
     def __call__(self):
         return self.func()
 
-    def do(self, func: Callable, **kwargs) -> Action:
-        self.func = functools.partial(func, **kwargs)
+    def do(self, func: Callable, *args, **kwargs) -> Action:
+        self.func = functools.partial(func, *args, **kwargs)
         return self
 
     def unregister(self) -> None:
