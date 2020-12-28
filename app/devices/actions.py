@@ -14,6 +14,9 @@ from app.core.interfaces import Loggable
 class Action(Loggable):
 
     def __init__(self, func: Callable = None, *args, **kwargs):
+        if not func and (args or kwargs):
+            raise ValueError('Parameters set, but no function passed.')
+
         super().__init__(*args, **kwargs)
         self.name = kwargs.pop('name', secrets.token_hex(16))
         self.func = functools.partial(func, **kwargs) if func else None
@@ -26,6 +29,9 @@ class Action(Loggable):
         return hash((self.name))
 
     def __call__(self):
+        if self.func is None:
+            raise TypeError(f'The action {self.name} does not have a callable function.')
+
         return self.func()
 
     def do(self, func: Callable, *args, **kwargs) -> Action:
