@@ -68,18 +68,18 @@ class LightBulbParameters(Parameters):
             self._color = rgb_to_hex((color[0], color[1], color[2]))
             return self
 
-        raise ValueError(
+        raise TypeError(
             f'Color must be either a string or a tuple of RGB values, got {color}')
 
     def brightness(self, value: int) -> LightBulbParameters:
         if value < 0 or value > 100:
-            raise Exception(
+            raise ValueError(
                 'Brightness must be a positive number less than 100')
         self._brightness = value
         return self
 
     def transition_duration(self, seconds: int) -> LightBulbParameters:
         if seconds < 0:
-            raise Exception('Transition duration must be a positive number')
+            raise ValueError('Transition duration must be a positive number')
         self._transition_duration = seconds * 1000
         return self
