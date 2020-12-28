@@ -17,10 +17,10 @@ class Action(Loggable):
         if not func and (args or kwargs):
             raise ValueError('Parameters set, but no function passed.')
 
-        super().__init__(*args, **kwargs)
         self.name = kwargs.pop('name', secrets.token_hex(16))
-        self.func = functools.partial(func, **kwargs) if func else None
+        self.func = functools.partial(func, *args, **kwargs) if func else None
         atexit.register(self.unregister)
+        super().__init__()
 
     def __eq__(self, other: Action):
         return self.name == other.name
