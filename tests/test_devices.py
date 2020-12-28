@@ -2,7 +2,7 @@ import pytest
 from unittest import TestCase
 
 from app.devices.base import LightBulb
-from app.web.services import IFTTT
+from app.services import IFTTT
 from pytest_mock import MockerFixture
 
 SERVICE_CALL_SUCCESS = 'mock-success-call'
@@ -35,7 +35,7 @@ def ifttt_fail(request, mocker: MockerFixture) -> IFTTT:
 class Test_Integration_SmartDevices(TestCase):
 
     def test_factory(self) -> None:
-        light_bulb = LightBulb(service=self.ifttt)
+        light_bulb = LightBulb('room', service=self.ifttt)
         response = light_bulb.switch_on()
         assert response.success, response.message
 
@@ -44,18 +44,18 @@ class Test_Integration_SmartDevices(TestCase):
 class Test_Integration_LightBulb_IFTTT_Success(TestCase):
 
     def test_create_light_bulb(self) -> None:
-        light_bulb = LightBulb(service=self.ifttt)
+        light_bulb = LightBulb('room', service=self.ifttt)
         assert light_bulb is not None
         assert type(light_bulb) is LightBulb
 
     def test_light_bulb_switch_on_success(self) -> None:
-        light_bulb = LightBulb(service=self.ifttt)
+        light_bulb = LightBulb('room', service=self.ifttt)
         response = light_bulb.switch_on()
         assert response.success is True
         assert response.message == SERVICE_CALL_SUCCESS
 
     def test_light_bulb_switch_off_success(self) -> None:
-        light_bulb = LightBulb(service=self.ifttt)
+        light_bulb = LightBulb('room', service=self.ifttt)
         response = light_bulb.switch_off()
         assert response.success is True
         assert response.message == SERVICE_CALL_SUCCESS
@@ -65,13 +65,13 @@ class Test_Integration_LightBulb_IFTTT_Success(TestCase):
 class Test_Integration_LightBulb_IFTTT_Fail(TestCase):
 
     def test_light_bulb_switch_off_fail(self) -> None:
-        light_bulb = LightBulb(service=self.ifttt)
+        light_bulb = LightBulb('room', service=self.ifttt)
         response = light_bulb.switch_off()
         assert response.success is False
         assert response.message == SERVICE_CALL_FAIL
 
     def test_light_bulb_switch_on_fail(self) -> None:
-        light_bulb = LightBulb(service=self.ifttt)
+        light_bulb = LightBulb('room', service=self.ifttt)
         response = light_bulb.switch_on()
         assert response.success is False
         assert response.message == SERVICE_CALL_FAIL
