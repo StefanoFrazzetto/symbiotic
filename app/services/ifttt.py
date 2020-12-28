@@ -22,6 +22,9 @@ class IFTTT(BaseService):
                 'You must add your IFTTT parameters to your config.yaml file')
 
     def _validate_parameters(self, parameters: Any = None) -> dict:
+        if parameters is None:
+            return {}
+
         if issubclass(type(parameters), Parameters):
             parameters = parameters.ifttt()
 
@@ -29,7 +32,7 @@ class IFTTT(BaseService):
             Optional('value1'): And(Or(int, float, str)),
             Optional('value2'): And(Or(int, float, str)),
             Optional('value3'): And(Or(int, float, str)),
-        }, ignore_extra_keys=True)
+        })
 
         return schema.validate(parameters)
 

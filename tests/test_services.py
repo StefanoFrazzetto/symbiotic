@@ -6,7 +6,8 @@ from enum import Enum
 
 from pytest_mock import mock
 
-from app.web.services import IFTTT
+import schema
+from app.services import IFTTT
 
 
 class StatusCodes(Enum):
@@ -55,66 +56,88 @@ def ifttt_service_invalid_key() -> IFTTT:
     return IFTTT(config=config)
 
 
-# This method will be used by the mock to replace requests.post
-# Source: https://stackoverflow.com/questions/15753390/how-can-i-mock-requests-and-the-response
-def mocked_requests_post(*args, **kwargs):
-    from urllib.parse import urlparse
+# # This method will be used by the mock to replace requests.post
+# # Source: https://stackoverflow.com/questions/15753390/how-can-i-mock-requests-and-the-response
+# def mocked_requests_post(*args, **kwargs):
+#     from urllib.parse import urlparse
 
-    class MockResponse:
-        def __init__(self, status_code, *args, **kwargs):
-            self.status_code = status_code
-            self.text = kwargs.get('text')
-            self.json_data = kwargs.get('json_data')
+#     class MockResponse:
+#         def __init__(self, status_code, *args, **kwargs):
+#             self.status_code = status_code
+#             self.text = kwargs.get('text')
+#             self.json_data = kwargs.get('json_data')
 
-        def json(self):
-            return self.json_data
+#         def json(self):
+#             return self.json_data
 
-        @property
-        def ok(self):
-            return self.status_code < 400
+#         @property
+#         def ok(self):
+#             return self.status_code < 400
 
-    url = args[0]
-    url_segments = urlparse(url).path.split('/')
-    event_name = url_segments[2]
-    key = url_segments[5]
+#     url = args[0]
+#     url_segments = urlparse(url).path.split('/')
+#     event_name = url_segments[2]
+#     key = url_segments[5]
 
-    # check key
-    if key == 'bad_key':  # key is not valid
-        return MockResponse(StatusCodes.UNAUTHORIZED.code, StatusCodes.UNAUTHORIZED.reason)
-    elif key == 'unauthorized_key':  # permissions not sufficient for action
-        return MockResponse(StatusCodes.FORBIDDEN.code, StatusCodes.FORBIDDEN.reason)
-    elif key == 'valid_key':
-        # key is authorized, check the event_name
-        if event_name == 'non-existent_event':
-            return MockResponse(StatusCodes.NOT_FOUND.code, StatusCodes.NOT_FOUND.reason)
-        elif event_name == 'valid-event_name':
-            return MockResponse(StatusCodes.OK.code, StatusCodes.OK.reason)
+#     # check key
+#     if key == 'bad_key':  # key is not valid
+#         return MockResponse(StatusCodes.UNAUTHORIZED.code, StatusCodes.UNAUTHORIZED.reason)
+#     elif key == 'unauthorized_key':  # permissions not sufficient for action
+#         return MockResponse(StatusCodes.FORBIDDEN.code, StatusCodes.FORBIDDEN.reason)
+#     elif key == 'valid_key':
+#         # key is authorized, check the event_name
+#         if event_name == 'non-existent_event':
+#             return MockResponse(StatusCodes.NOT_FOUND.code, StatusCodes.NOT_FOUND.reason)
+#         elif event_name == 'valid-event_name':
+#             return MockResponse(StatusCodes.OK.code, StatusCodes.OK.reason)
 
-    return MockResponse(StatusCodes.BAD_REQUEST.code, StatusCodes.BAD_REQUEST.reason)
+#     return MockResponse(StatusCodes.BAD_REQUEST.code, StatusCodes.BAD_REQUEST.reason)
 
 
-class Test_Unit_IFTTT(TestCase):
+@mock.patch('app.services.ifttt.requests.post', autospec=True)
+class Test_IFTTT_Unit(TestCase):
 
-    @mock.patch('app.web.services.requests.post', side_effect=mocked_requests_post)
-    def test_call_trigger_bad_key(self, mock_post):
-        ifttt = IFTTT(config={'key': 'bad_key'})
-        response = ifttt.trigger(event_name='some-event_name')
-        self.assertFalse(response.success)
-
-    @mock.patch('app.web.services.requests.post', side_effect=mocked_requests_post)
-    def test_call_trigger_unauthorized_key(self, mock_post):
-        ifttt = IFTTT(config={'key': 'unauthorized_key'})
-        response = ifttt.trigger(event_name='some-event_name')
-        self.assertFalse(response.success)
-
-    @mock.patch('app.web.services.requests.post', side_effect=mocked_requests_post)
-    def test_call_trigger_non_existent_event(self, mock_post):
+    def test_trigger_valid_request_no_params(self, mock_post):
         ifttt = IFTTT(config={'key': 'valid_key'})
-        response = ifttt.trigger(event_name='non-existent_event')
-        self.assertFalse(response.success)
-
-    @mock.patch('app.web.services.requests.post', side_effect=mocked_requests_post)
-    def test_call_trigger_valid_request(self, mock_post):
-        ifttt = IFTTT(config={'key': 'valid_key'})
-        response = ifttt.trigger(event_name='valid-event_name')
+        response = ifttt.trigger(event_name='name')
         self.assertTrue(response.success)
+
+    def test_trigger_valid_request_with_params1(self, mock_post):
+        ifttt = IFTTT(config={'key': 'valid_key'})
+        response = ifttt.trigger(event_name='name', parameters={'value1': 42})
+        self.assertTrue(response.success)
+
+    def test_trigger_valid_request_with_params2(self, mock_post):
+        ifttt = IFTTT(config={'key': 'valid_key'})
+        response = ifttt.trigger(event_name='name', parameters={'value2': 42, 'value3': 'some-value'})
+        self.assertTrue(response.success)
+
+    def test_trigger_valid_request_with_params3(self, mock_post):
+        ifttt = IFTTT(config={'key': 'valid_key'})
+        response = ifttt.trigger(event_name='name', parameters={})
+        self.assertTrue(response.success)
+
+    def test_trigger_valid_request_with_params4(self, mock_post):
+        ifttt = IFTTT(config={'key': 'valid_key'})
+        response = ifttt.trigger(event_name='name', parameters={})
+        self.assertTrue(response.success)
+
+    def test_trigger_valid_request_with_params5(self, mock_post):
+        ifttt = IFTTT(config={'key': 'valid_key'})
+        with pytest.raises(schema.SchemaUnexpectedTypeError):
+            ifttt.trigger(event_name='name', parameters='test')
+
+    def test_trigger_valid_request_with_params6(self, mock_post):
+        ifttt = IFTTT(config={'key': 'valid_key'})
+        with pytest.raises(TypeError):
+            ifttt.trigger(event_name='name', color='black')
+
+    def test_trigger_valid_request_with_params7(self, mock_post):
+        ifttt = IFTTT(config={'key': 'valid_key'})
+        with pytest.raises(schema.SchemaWrongKeyError):
+            ifttt.trigger(event_name='name', parameters={'value1': 'some-value', 'value4': 55})
+
+    def test_trigger_valid_request_with_params8(self, mock_post):
+        ifttt = IFTTT(config={'key': 'valid_key'})
+        with pytest.raises(schema.SchemaWrongKeyError):
+            ifttt.trigger(event_name='name', parameters={'value1': 'some-value', 'sheep': 'baaah'})
