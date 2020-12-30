@@ -2,7 +2,7 @@ import pytest
 from unittest import TestCase
 
 from app.devices.base import LightBulb
-from app.services import IFTTT
+from app.services.ifttt import IFTTT
 from pytest_mock import MockerFixture
 
 SERVICE_CALL_SUCCESS = 'mock-success-call'

@@ -8,7 +8,7 @@ from enum import Enum
 from app.core.interfaces import Loggable
 from .actions import Actionable
 from app.services.responses import ServiceResponse
-from app.services import BaseService
+from app.services.base import BaseService
 from .parameters import LightBulbParameters, Parameters
 
 

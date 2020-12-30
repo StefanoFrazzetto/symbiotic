@@ -7,7 +7,7 @@ from enum import Enum
 from pytest_mock import mock
 
 import schema
-from app.services import IFTTT
+from app.services.ifttt import IFTTT
 
 
 class StatusCodes(Enum):
