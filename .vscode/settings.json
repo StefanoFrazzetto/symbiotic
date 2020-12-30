@@ -1,12 +1,18 @@
 {
+    "editor.rulers": [
+        72,
+        79,
+        120
+    ],
+
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
-
     "python.linting.flake8Args": [
         "--ignore",
         "E501, E701"
     ],
+    // "python.linting.flake8CategorySeverity.F": "Warning"
 
     "python.testing.pytestArgs": [
         "tests",
@@ -14,7 +20,5 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
-    "python.testing.pytestEnabled": true
-
-    // "python.linting.flake8CategorySeverity.F": "Warning"
+    "python.testing.pytestEnabled": true,
 }
