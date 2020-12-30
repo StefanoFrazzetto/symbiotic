@@ -26,6 +26,7 @@ class Test_Action_Unit(TestCase):
         with pytest.raises(ValueError):
             # no function, but parameters passed
             action = Action(parameters={'some-key': 'some-value'})
+            self.assertIsNotNone(action)
 
     def test_init4(self):
         def job(*args: int):
