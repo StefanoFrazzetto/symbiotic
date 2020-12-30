@@ -66,28 +66,54 @@ class EventedAction(Action):
         self.logger.debug(f'removed {self.event} from bus')
 
 
-class ActionScheduler(Loggable):
+class ScheduledAction(Action):
 
-    def __init__(self, func: Callable, tag: str = None, **kwargs):
-        super().__init__(**kwargs)
-        self.action = Action(func, **kwargs)
-        self.tag = tag
-        self.scheduler_jobs = []
-        atexit.register(self.clear)
+    def __init__(self, func: Callable = None, *args, **kwargs):
+        super().__init__(func, *args, **kwargs)
+        self.job = None
 
     def every(self, interval: int = 1):
-        job = scheduler.every(interval).tag(self.tag)
-        self.scheduler_jobs.append(job)
-        return job
+        self.job = scheduler.every(interval).tag(self.name)
+        return self.job
+
+    def register(self):
+        self.job.do(self)
+        self.logger.debug(f'{self.name} added to the schedule')
+
+    def unregister(self) -> bool:
+        scheduler.cancel_job(self.job)
+        self.logger.debug(f'{self.name} removed from the schedule')
+        return True
+
+
+class ActionScheduler(Loggable):
+
+    def __init__(self, func: Callable = None, **kwargs):
+        super().__init__()
+        self.name = kwargs.pop('name', None)
+        self.func = func
+        self.kwargs = kwargs
+        self.actions = []
+        atexit.register(self.clear)
+
+    def add(self, func: Callable = None, *args, **kwargs):
+        if func is not None:
+            # action specified
+            action = ScheduledAction(func, *args, **{**self.kwargs, **kwargs})
+        else:
+            if self.func is None:
+                raise ValueError('Cannot schedule an empty action.')
+            action = ScheduledAction(self.func, *args, **{**self.kwargs, **kwargs})
+        self.actions.append(action)
+        return action
 
     def finalize(self):
-        for job in self.scheduler_jobs:
-            job.do(self.action)
+        for action in self.actions:
+            action.register()
 
     def clear(self):
-        for job in self.scheduler_jobs:
-            scheduler.cancel_job(job)
-            self.logger.debug(f'removed scheduled job for action {job.job_func.name}')
+        # mutate existing list by adding back only actions if failed to unregister
+        self.actions[:] = [act for act in self.actions if not act.unregister()]
 
 
 class Actionable(ABC):
@@ -113,8 +139,8 @@ class Actionable(ABC):
 
         Example:
             >>> with device.schedule(device.action) as schedule:
-            >>>     schedule.every().day.at('08.30')
-            >>>     schedule.every(5).days.at('11.30')
+            >>>     schedule.add().every().day.at('08.30')
+            >>>     schedule.add().every(5).days.at('11.30')
         """
         scheduler = ActionScheduler(job, **kwargs)
         yield scheduler
