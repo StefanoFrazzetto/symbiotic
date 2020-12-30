@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import pytest
-from unittest import TestCase
 from enum import Enum
+from unittest import TestCase, mock
 
-from pytest_mock import mock
-
+import pytest
 import schema
 from app.services.ifttt import IFTTT
 
