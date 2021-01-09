@@ -7,9 +7,8 @@
 config.yaml
 config.yml
 
-# log files
-logs/**
-!logs/.gitkeep
+# symbiotic log files
+*.log
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
