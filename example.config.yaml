@@ -1,3 +1,3 @@
-ifttt:
-    key: YOUR_IFTTT_WEBHOOKS_KEY
-    domain: https://maker.ifttt.com
+services:
+    IFTTT:
+        key: YOUR_IFTTT_WEBHOOKS_KEY
