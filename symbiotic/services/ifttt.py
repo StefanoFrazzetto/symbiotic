@@ -1,8 +1,8 @@
 import requests
 from typing import Any
 
-from app.devices.parameters import Parameters
-from app.core.exceptions import ConfigurationError
+from symbiotic.devices.parameters import Parameters
+from symbiotic.core.exceptions import ConfigurationError
 from .base import BaseService
 from .responses import ServiceResponse
 from schema import Schema, Optional, And, Or

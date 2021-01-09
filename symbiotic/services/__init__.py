@@ -2,4 +2,4 @@ __all__ = [
     "IFTTT",
 ]
 
-from app.services.ifttt import IFTTT
+from symbiotic.services.ifttt import IFTTT

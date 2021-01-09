@@ -6,11 +6,11 @@ from dependency_injector.wiring import Provide
 from gpiozero import Device
 from gpiozero.pins.pigpio import PiGPIOFactory
 
-from app import scheduler
-from app.core.containers import Application
-from app.devices.base import LightBulb
-from app.devices.sensors import GPIOMotionSensor
-from app.services import IFTTT
+from symbiotic import scheduler
+from symbiotic.core.containers import Application
+from symbiotic.devices.base import LightBulb
+from symbiotic.devices.sensors import GPIOMotionSensor
+from symbiotic.services import IFTTT
 
 
 def main(ifttt: IFTTT = Provide[Application.ifttt]):

@@ -1,7 +1,7 @@
 from abc import ABC
 
-from app import bus
-from app.core import interfaces
+from symbiotic import bus
+from symbiotic.core import interfaces
 from gpiozero import MotionSensor as GPIOZeroMotionSensor
 
 

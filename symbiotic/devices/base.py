@@ -5,10 +5,10 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 
-from app.core.interfaces import Loggable
+from symbiotic.core.interfaces import Loggable
 from .actions import Actionable
-from app.services.responses import ServiceResponse
-from app.services.base import BaseService
+from symbiotic.services.responses import ServiceResponse
+from symbiotic.services.base import BaseService
 from .parameters import LightBulbParameters, Parameters
 
 

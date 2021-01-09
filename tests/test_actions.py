@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 import pytest
-from app import scheduler as job_scheduler
-from app.devices.actions import Action, ActionScheduler
+from symbiotic import scheduler as job_scheduler
+from symbiotic.devices.actions import Action, ActionScheduler
 
 
 class Test_Action_Unit(TestCase):

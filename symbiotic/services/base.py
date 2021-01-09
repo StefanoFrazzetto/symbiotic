@@ -1,7 +1,7 @@
 import logging
 
 from abc import ABC, abstractmethod
-from app.services.responses import ServiceResponse
+from symbiotic.services.responses import ServiceResponse
 
 
 class BaseService(ABC):

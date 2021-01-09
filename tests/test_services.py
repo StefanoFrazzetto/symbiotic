@@ -5,7 +5,7 @@ from unittest import TestCase, mock
 
 import pytest
 import schema
-from app.services.ifttt import IFTTT
+from symbiotic.services.ifttt import IFTTT
 
 
 class StatusCodes(Enum):
@@ -92,7 +92,7 @@ def ifttt_service_invalid_key() -> IFTTT:
 #     return MockResponse(StatusCodes.BAD_REQUEST.code, StatusCodes.BAD_REQUEST.reason)
 
 
-@mock.patch('app.services.ifttt.requests.post', autospec=True)
+@mock.patch('symbiotic.services.ifttt.requests.post', autospec=True)
 class Test_IFTTT_Unit(TestCase):
 
     def test_trigger_valid_request_no_params(self, mock_post):

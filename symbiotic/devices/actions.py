@@ -7,8 +7,8 @@ from abc import ABC
 from contextlib import contextmanager
 from typing import Callable, List
 
-from app import bus, scheduler
-from app.core.interfaces import Loggable
+from symbiotic import bus, scheduler
+from symbiotic.core.interfaces import Loggable
 
 
 class Action(Loggable):

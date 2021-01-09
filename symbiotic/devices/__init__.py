@@ -3,5 +3,5 @@ __all__ = [
     "GPIOMotionSensor",
 ]
 
-from app.devices.base import LightBulb
-from app.devices.sensors import GPIOMotionSensor
+from symbiotic.devices.base import LightBulb
+from symbiotic.devices.sensors import GPIOMotionSensor
