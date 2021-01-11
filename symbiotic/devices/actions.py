@@ -116,7 +116,7 @@ class ActionScheduler(Loggable):
         self.actions[:] = [act for act in self.actions if not act.unregister()]
 
 
-class Actionable(ABC):
+class Actionable(object):
 
     actions: List[Action]
 

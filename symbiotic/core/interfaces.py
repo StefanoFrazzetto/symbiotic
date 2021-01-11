@@ -1,8 +1,7 @@
 import logging
-from abc import ABC
 
 
-class Loggable(ABC):
+class Loggable(object):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
