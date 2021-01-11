@@ -3,11 +3,9 @@ from __future__ import annotations
 import atexit
 import functools
 import secrets
-from abc import ABC
 from contextlib import contextmanager
 from typing import Callable, List
 
-from symbiotic import bus, scheduler
 from symbiotic.core.interfaces import Loggable
 
 
@@ -17,6 +15,8 @@ class Action(Loggable):
         if not func and (args or kwargs):
             raise ValueError('Parameters set, but no function passed.')
 
+        self.bus = kwargs.pop('event_bus')
+        self.scheduler = kwargs.get('scheduler')
         self.name = kwargs.pop('name', secrets.token_hex(16))
         self.func = functools.partial(func, *args, **kwargs) if func else None
         atexit.register(self.unregister)
@@ -50,7 +50,7 @@ class EventedAction(Action):
     def __init__(self, on: str, **kwargs):
         super().__init__(**kwargs)
         self.event = on
-        bus.add_event(self, self.event)
+        self.bus.add_event(self, self.event)
         self.logger.debug(f'{self.event} registered on bus')
 
     def unregister(self) -> None:
@@ -62,7 +62,7 @@ class EventedAction(Action):
         # would try to compare an instance of Action to a string.
         # This could be solved in a better way, but the lazy one take less time.
         self.__name__ = self
-        bus.remove_event(self, self.event)
+        self.bus.remove_event(self, self.event)
         self.logger.debug(f'removed {self.event} from bus')
 
 
@@ -73,7 +73,7 @@ class ScheduledAction(Action):
         self.job = None
 
     def every(self, interval: int = 1):
-        self.job = scheduler.every(interval).tag(self.name)
+        self.job = self.scheduler.every(interval).tag(self.name)
         return self.job
 
     def register(self):
@@ -81,7 +81,7 @@ class ScheduledAction(Action):
         self.logger.debug(f'{self.name} added to the schedule')
 
     def unregister(self) -> bool:
-        scheduler.cancel_job(self.job)
+        self.scheduler.cancel_job(self.job)
         self.logger.debug(f'{self.name} removed from the schedule')
         return True
 

@@ -1,6 +1,5 @@
 from abc import ABC
 
-from symbiotic import bus
 from symbiotic.core import interfaces
 from gpiozero import MotionSensor as GPIOZeroMotionSensor
 
@@ -20,6 +19,7 @@ class MotionSensor(interfaces.Loggable, ABC):
     def __init__(self, name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = name
+        self.bus = kwargs.pop('event_bus')
 
     @property
     def active(self) -> str:
@@ -31,11 +31,11 @@ class MotionSensor(interfaces.Loggable, ABC):
 
     def active_hook(self):
         self.logger.debug(f'{self.name}: movement detected.')
-        bus.emit(self.active)
+        self.bus.emit(self.active)
 
     def inactive_hook(self):
         self.logger.debug(f'{self.name}: movement stopped.')
-        bus.emit(self.inactive)
+        self.bus.emit(self.inactive)
 
 
 class GPIOMotionSensor(MotionSensor):

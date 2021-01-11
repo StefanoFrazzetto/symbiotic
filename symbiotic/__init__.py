@@ -1,5 +1,5 @@
-from event_bus import EventBus
-from schedule import Scheduler
+__all__ = [
+    "Symbiotic"
+]
 
-bus = EventBus()
-scheduler = Scheduler()
+from .app import Symbiotic
