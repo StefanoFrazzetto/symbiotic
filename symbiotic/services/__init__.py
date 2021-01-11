@@ -1,5 +1,7 @@
 __all__ = [
+    "BaseService",
     "IFTTT",
 ]
 
-from symbiotic.services.ifttt import IFTTT
+from .base import BaseService
+from .ifttt import IFTTT
