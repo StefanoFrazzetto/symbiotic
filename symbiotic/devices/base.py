@@ -30,18 +30,13 @@ class SmartDevice(Loggable, Actionable, ABC):
         def __str__(self):
             return self.value
 
-    _name: str  # name of the device
-    _state: State  # on or off
-    _parameters: Parameters  # colour, brightness, etc.
-    _service: BaseService  # service used to control the device, e.g IFTTT
-
-    def __init__(self, name: str, service: BaseService, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self._name = name
-        self._state = kwargs.get('state')
-        self._service = service
+    def __init__(self, name: str, *args, **kwargs) -> None:
+        self.name = name
+        self._state = kwargs.pop('state', None)
+        self._service = kwargs.pop('service', None)
         self._parameters = self.default_parameters
         self._last_update = None
+        super().__init__(*args, **kwargs)
 
     "Map device physical states to IFTTT service_event names."
     states_events_mapping: dict = {
@@ -52,10 +47,6 @@ class SmartDevice(Loggable, Actionable, ABC):
     @staticmethod
     def _state_to_service_event(device_state: State):
         return SmartDevice.states_events_mapping[device_state]
-
-    @property
-    def name(self) -> str:
-        return self._name
 
     @property
     def state(self) -> State:
@@ -90,7 +81,7 @@ class SmartDevice(Loggable, Actionable, ABC):
         service_event = self._state_to_service_event(state)
 
         # trigger the service
-        response = self._service.trigger(
+        response = self._service().trigger(
             event_name=service_event,
             parameters=self.parameters
         )
@@ -127,8 +118,8 @@ class SmartDevice(Loggable, Actionable, ABC):
 
 class LightBulb(SmartDevice):
 
-    def __init__(self, name: str, service: BaseService, *args, **kwargs):
-        super().__init__(name, service, *args, **kwargs)
+    def __init__(self, name: str, *args, **kwargs):
+        super().__init__(name, *args, **kwargs)
 
     @property
     def default_parameters(self) -> LightBulbParameters:
