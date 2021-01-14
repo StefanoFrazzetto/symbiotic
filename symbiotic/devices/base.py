@@ -68,6 +68,9 @@ class SmartDevice(Loggable, Actionable, ABC):
     def _change_state(self, state: SmartDevice.State, **params) -> ServiceResponse:
         self.logger.debug(f"Invoked _change_state: '{state}' with '{params}'")
 
+        if not self._service:
+            raise RuntimeError('You need to add a service to this device')
+
         # throttle requests to service
         if (last_update := self.last_update) < SmartDevice.UPDATES_THROTTLE:
             remaining = SmartDevice.UPDATES_THROTTLE - last_update
