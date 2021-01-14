@@ -3,20 +3,23 @@ from __future__ import annotations
 import atexit
 import functools
 import secrets
+from abc import ABC
 from contextlib import contextmanager
 from typing import Callable, List
 
-from symbiotic.core.interfaces import Loggable
+from ..core import _event_bus, _scheduler
+from ..core.interfaces import Loggable
 
 
 class Action(Loggable):
+
+    bus = _event_bus
+    scheduler = _scheduler
 
     def __init__(self, func: Callable = None, *args, **kwargs):
         if not func and (args or kwargs):
             raise ValueError('Parameters set, but no function passed.')
 
-        self.bus = kwargs.pop('event_bus')
-        self.scheduler = kwargs.get('scheduler')
         self.name = kwargs.pop('name', secrets.token_hex(16))
         self.func = functools.partial(func, *args, **kwargs) if func else None
         atexit.register(self.unregister)
@@ -116,7 +119,7 @@ class ActionScheduler(Loggable):
         self.actions[:] = [act for act in self.actions if not act.unregister()]
 
 
-class Actionable(object):
+class Actionable(ABC):
 
     actions: List[Action]
 

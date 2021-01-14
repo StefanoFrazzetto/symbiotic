@@ -1,8 +1,6 @@
 import logging.config
 
 from dependency_injector import containers, providers
-from event_bus import EventBus
-from schedule import Scheduler
 
 from .devices import LightBulb
 from .services import IFTTT
@@ -11,22 +9,20 @@ from .services import IFTTT
 class ServiceContainer(containers.DeclarativeContainer):
 
     config = providers.Configuration()
-    event_bus = providers.Dependency(EventBus)
-    scheduler = providers.Dependency(Scheduler)
 
-    IFTTT = providers.Singleton(IFTTT, config=config.IFTTT)
+    # It's not possible to pass the root config 'config.services'
+    # because, if the configuration does not contain the service's
+    # config (e.g. IFTTT), any object trying to call that service will
+    # throw "AttributeError: 'NoneType' object has no attribute 'get'"
+    IFTTT = providers.Singleton(IFTTT, config=config.services.IFTTT)
 
 
 class DeviceContainer(containers.DeclarativeContainer):
 
     config = providers.Configuration()
-    event_bus = providers.Dependency(EventBus)
-    scheduler = providers.Dependency(Scheduler)
 
     light_bulb = providers.Factory(
         LightBulb,
-        event_bus=event_bus,
-        scheduler=scheduler
     )
 
 
@@ -38,20 +34,12 @@ class Container(containers.DeclarativeContainer):
         config.logging
     )
 
-    event_bus = providers.Singleton(EventBus)
-
-    scheduler = providers.Singleton(Scheduler)
-
     devices = providers.Container(
         DeviceContainer,
-        event_bus=event_bus,
-        scheduler=scheduler,
-        config=config.devices,
+        config=config,
     )
 
     services = providers.Container(
         ServiceContainer,
-        event_bus=event_bus,
-        scheduler=scheduler,
-        config=config.services
+        config=config,
     )

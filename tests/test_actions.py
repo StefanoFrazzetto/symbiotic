@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 import pytest
-from symbiotic import scheduler as job_scheduler
+from symbiotic.core import _scheduler
 from symbiotic.devices.actions import Action, ActionScheduler
 
 
@@ -142,7 +142,7 @@ class Test_ActionScheduler_Unit(TestCase):
         self.assertIsNotNone(action.job)
 
         # ensure the job has not been added to the scheduler
-        self.assertEqual(len(job_scheduler.jobs), 0)
+        self.assertEqual(len(_scheduler.jobs), 0)
 
     def test_add_action_with_kwargs2(self):
         def somefunc(**kwargs):
@@ -162,7 +162,7 @@ class Test_ActionScheduler_Unit(TestCase):
         self.assertIsNotNone(scheduler.actions[0])
 
         # ensure the job has not been added to the scheduler
-        self.assertEqual(len(job_scheduler.jobs), 0)
+        self.assertEqual(len(_scheduler.jobs), 0)
 
 
 class Test_ActionScheduler_Integration(TestCase):
@@ -171,13 +171,12 @@ class Test_ActionScheduler_Integration(TestCase):
     @pytest.fixture(autouse=True)
     def run_around_tests(self):
         # Ensure the previous test hasn't left any jobs in the queue
-        assert len(
-            job_scheduler.jobs) == 0, 'The job scheduler queue is not empty'
+        err = 'The job scheduler queue is not empty'
+        assert len(_scheduler.jobs) == 0, err
         yield
         # Clear any jobs added by a test
-        job_scheduler.clear()
-        assert len(
-            job_scheduler.jobs) == 0, 'The job scheduler queue is not empty'
+        _scheduler.clear()
+        assert len(_scheduler.jobs) == 0, err
 
     def test_add_action_with_kwargs1(self):
         def somefunc(**kwargs):
@@ -188,9 +187,9 @@ class Test_ActionScheduler_Integration(TestCase):
         scheduler.finalize()
 
         # ensure the job has been added to the scheduler
-        self.assertEqual(len(job_scheduler.jobs), 1)
+        self.assertEqual(len(_scheduler.jobs), 1)
         # ensure the action has a reference to the job
-        self.assertEqual(job_scheduler.jobs[0], scheduler.actions[0].job)
+        self.assertEqual(_scheduler.jobs[0], scheduler.actions[0].job)
 
     def test_add_action_with_kwargs2(self):
         def somefunc(**kwargs):
@@ -201,9 +200,9 @@ class Test_ActionScheduler_Integration(TestCase):
         scheduler.finalize()
 
         # ensure the job has been added to the scheduler
-        self.assertEqual(len(job_scheduler.jobs), 1)
+        self.assertEqual(len(_scheduler.jobs), 1)
         # ensure the action has a reference to the job
-        self.assertEqual(job_scheduler.jobs[0], scheduler.actions[0].job)
+        self.assertEqual(_scheduler.jobs[0], scheduler.actions[0].job)
 
     def test_add_no_action_should_fail1(self):
         scheduler = ActionScheduler()
@@ -214,7 +213,7 @@ class Test_ActionScheduler_Integration(TestCase):
         # action not added
         self.assertEqual(len(scheduler.actions), 0)
         # ensure the job scheduler queue is empty
-        self.assertEqual(len(job_scheduler.jobs), 0)
+        self.assertEqual(len(_scheduler.jobs), 0)
 
     def test_add_no_action_should_fail2(self):
         scheduler = ActionScheduler(someparam='bla')
@@ -225,7 +224,7 @@ class Test_ActionScheduler_Integration(TestCase):
         # action not added
         self.assertEqual(len(scheduler.actions), 0)
         # ensure the job scheduler queue is empty
-        self.assertEqual(len(job_scheduler.jobs), 0)
+        self.assertEqual(len(_scheduler.jobs), 0)
 
     def test_clear_jobs(self):
         def somefunc(**kwargs):
@@ -236,8 +235,8 @@ class Test_ActionScheduler_Integration(TestCase):
         scheduler.finalize()
 
         self.assertEqual(len(scheduler.actions), 1)
-        self.assertEqual(len(job_scheduler.jobs), 1)
+        self.assertEqual(len(_scheduler.jobs), 1)
 
         scheduler.clear()
         self.assertEqual(len(scheduler.actions), 0)
-        self.assertEqual(len(job_scheduler.jobs), 0)
+        self.assertEqual(len(_scheduler.jobs), 0)
