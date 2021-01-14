@@ -12,14 +12,14 @@ class IFTTT(BaseService):
 
     DEFAULT_URL = 'https://maker.ifttt.com/trigger/{event_name}/with/key/{key}'
 
-    def __init__(self, config, *args, **kwargs):
+    def __init__(self, config: dict, *args, **kwargs):
         super().__init__(*args, **kwargs)
         try:
             self._url = config.get('url', IFTTT.DEFAULT_URL)
             self._key = config.pop('key')
         except (AttributeError, KeyError):
             raise ConfigurationError(
-                'You must add your IFTTT parameters to your config.yaml file')
+                'Could not instantiate IFTTT: configuration not found!')
 
     def _validate_parameters(self, parameters: Any = None) -> dict:
         if parameters is None:
