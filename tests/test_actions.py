@@ -23,7 +23,7 @@ class Test_Action_Unit(TestCase):
         self.assertIsNotNone(action.logger)  # superclass attribute
 
     def test_init3(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             # no function, but parameters passed
             action = Action(parameters={'some-key': 'some-value'})
             self.assertIsNotNone(action)
@@ -87,7 +87,7 @@ class Test_Action_Integration(TestCase):
 
     def test_call_action_should_raise_error(self):
         action = Action()
-        with pytest.raises(TypeError):
+        with pytest.raises(AttributeError):
             # action w/o job called
             action()
 
@@ -207,7 +207,7 @@ class Test_ActionScheduler_Integration(TestCase):
     def test_add_no_action_should_fail1(self):
         scheduler = ActionScheduler()
 
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             scheduler.add().every().sunday.at('23:59')
 
         # action not added
@@ -218,7 +218,7 @@ class Test_ActionScheduler_Integration(TestCase):
     def test_add_no_action_should_fail2(self):
         scheduler = ActionScheduler(someparam='bla')
 
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             scheduler.add().every().sunday.at('23:59')
 
         # action not added

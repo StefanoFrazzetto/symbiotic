@@ -18,7 +18,7 @@ class Action(Loggable):
 
     def __init__(self, func: Callable = None, *args, **kwargs):
         if not func and (args or kwargs):
-            raise ValueError('Parameters set, but no function passed.')
+            raise TypeError('Parameters set, but no function passed.')
 
         self.name = kwargs.pop('name', secrets.token_hex(16))
         self.func = functools.partial(func, *args, **kwargs) if func else None
@@ -33,7 +33,8 @@ class Action(Loggable):
 
     def __call__(self):
         if self.func is None:
-            raise TypeError(f'The action {self.name} does not have a callable function.')
+            err = f'The action {self.name} does not have a callable function.'
+            raise AttributeError(err)
 
         return self.func()
 
@@ -80,6 +81,10 @@ class ScheduledAction(Action):
         return self.job
 
     def register(self):
+        if not self.job:
+            err = f"Cannot schedule '{self.name}': no schedule specified"
+            raise AttributeError(err)
+
         self.job.do(self)
         self.logger.debug(f'{self.name} added to the schedule')
 
@@ -92,12 +97,12 @@ class ScheduledAction(Action):
 class ActionScheduler(Loggable):
 
     def __init__(self, func: Callable = None, **kwargs):
-        super().__init__()
         self.name = kwargs.pop('name', None)
         self.func = func
         self.kwargs = kwargs
         self.actions = []
         atexit.register(self.clear)
+        super().__init__()
 
     def add(self, func: Callable = None, *args, **kwargs):
         if func is not None:
@@ -105,8 +110,9 @@ class ActionScheduler(Loggable):
             action = ScheduledAction(func, *args, **{**self.kwargs, **kwargs})
         else:
             if self.func is None:
-                raise ValueError('Cannot schedule an empty action.')
-            action = ScheduledAction(self.func, *args, **{**self.kwargs, **kwargs})
+                raise TypeError('Cannot schedule an empty action.')
+            action = ScheduledAction(
+                self.func, *args, **{**self.kwargs, **kwargs})
         self.actions.append(action)
         return action
 
