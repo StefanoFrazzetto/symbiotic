@@ -8,7 +8,7 @@ from .services import IFTTT
 
 class ServiceContainer(containers.DeclarativeContainer):
 
-    config = providers.Configuration()
+    config = providers.Configuration(strict=True)
 
     # It's not possible to pass the root config 'config.services'
     # because, if the configuration does not contain the service's

@@ -4,7 +4,7 @@ chardet==4.0.0
 colorzero==1.1
 colour==0.1.5
 contextlib2==0.6.0.post1
-dependency-injector==4.5.4
+dependency-injector==4.10.0
 event-bus==1.0.2
 gpiozero==1.5.1
 idna==2.10
