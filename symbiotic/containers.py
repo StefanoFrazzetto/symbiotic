@@ -21,7 +21,7 @@ class DeviceContainer(containers.DeclarativeContainer):
 
     config = providers.Configuration()
 
-    light_bulb = providers.Factory(
+    light_bulb: LightBulb = providers.Factory(
         LightBulb,
     )
 
@@ -34,12 +34,12 @@ class Container(containers.DeclarativeContainer):
         config.logging
     )
 
-    devices = providers.Container(
+    devices: DeviceContainer = providers.Container(
         DeviceContainer,
         config=config,
     )
 
-    services = providers.Container(
+    services: ServiceContainer = providers.Container(
         ServiceContainer,
         config=config,
     )
