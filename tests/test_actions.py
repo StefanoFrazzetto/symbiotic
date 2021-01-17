@@ -184,7 +184,7 @@ class Test_ActionScheduler_Integration(TestCase):
 
         scheduler = ActionScheduler(somefunc, someparam='value')
         scheduler.add().every().sunday.at('23:59')
-        scheduler.finalize()
+        scheduler._finalize()
 
         # ensure the job has been added to the scheduler
         self.assertEqual(len(_scheduler.jobs), 1)
@@ -197,7 +197,7 @@ class Test_ActionScheduler_Integration(TestCase):
 
         scheduler = ActionScheduler(somefunc)
         scheduler.add(someparam='value').every().sunday.at('23:59')
-        scheduler.finalize()
+        scheduler._finalize()
 
         # ensure the job has been added to the scheduler
         self.assertEqual(len(_scheduler.jobs), 1)
@@ -232,7 +232,7 @@ class Test_ActionScheduler_Integration(TestCase):
 
         scheduler = ActionScheduler(somefunc)
         scheduler.add().every().sunday.at('23:59')
-        scheduler.finalize()
+        scheduler._finalize()
 
         self.assertEqual(len(scheduler.actions), 1)
         self.assertEqual(len(_scheduler.jobs), 1)

@@ -110,7 +110,7 @@ class ActionScheduler(Loggable):
         self.actions.append(action)
         return action
 
-    def finalize(self):
+    def _finalize(self):
         for action in self.actions:
             action.register()
 
@@ -133,7 +133,7 @@ class Actionable(ABC):
         return action
 
     @contextmanager
-    def schedule(self, job: Callable, **kwargs) -> ActionScheduler:
+    def schedule(self, job: Callable = None, **kwargs) -> ActionScheduler:
         """ Registers the action with the scheduler.
 
         Using contextmanager allows to yield an instance of ActionScheduler
@@ -147,4 +147,4 @@ class Actionable(ABC):
         """
         scheduler = ActionScheduler(job, **kwargs)
         yield scheduler
-        scheduler.finalize()
+        scheduler._finalize()
