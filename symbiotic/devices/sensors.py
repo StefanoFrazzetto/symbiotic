@@ -1,7 +1,9 @@
 from abc import ABC
 
-from symbiotic.core import interfaces
 from gpiozero import MotionSensor as GPIOZeroMotionSensor
+from symbiotic.core import interfaces
+
+from ..core import _event_bus, _scheduler
 
 
 class MotionSensor(interfaces.Loggable, ABC):
@@ -15,11 +17,12 @@ class MotionSensor(interfaces.Loggable, ABC):
         name (str): the name to associate with the motion sensor.
     """
     name: str
+    bus = _event_bus
+    scheduler = _scheduler
 
     def __init__(self, name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = name
-        self.bus = kwargs.pop('event_bus')
 
     @property
     def active(self) -> str:
