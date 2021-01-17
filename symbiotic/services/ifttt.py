@@ -59,6 +59,6 @@ class IFTTT(BaseService):
         response = requests.post(url, parameters)
 
         self.logger.debug(f'Request body: {response.request.body}')
-        self.logger.debug(f'Response: {response.text}')
+        self.logger.info(f'{response.text}')
 
         return ServiceResponse.from_response(response)
