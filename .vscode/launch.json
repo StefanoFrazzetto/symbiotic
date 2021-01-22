@@ -4,18 +4,19 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
-            "name": "Python: app.py (JMC)",
+            "name": "Python: example.py (JMC)",
             "type": "python",
             "request": "launch",
-            "program": "app.py",
+            "program": "example.py",
             "console": "integratedTerminal"
         },
         {
-            "name": "Python: app.py (ALL)",
+            "name": "Python: example.py (ALL)",
             "type": "python",
             "request": "launch",
-            "program": "app.py",
+            "program": "example.py",
             "console": "integratedTerminal",
             "justMyCode": false
         },
