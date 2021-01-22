@@ -8,22 +8,22 @@ from .services import IFTTT
 
 class ServiceContainer(containers.DeclarativeContainer):
 
-    config = providers.Configuration(strict=True)
+    config = providers.Configuration()
 
     # It's not possible to pass the root config 'config.services'
     # because, if the configuration does not contain the service's
     # config (e.g. IFTTT), any object trying to call that service will
     # throw "AttributeError: 'NoneType' object has no attribute 'get'"
-    IFTTT = providers.Singleton(IFTTT, config=config.services.IFTTT)
+    IFTTT = providers.Singleton(IFTTT, config=config.IFTTT)
 
 
 class DeviceContainer(containers.DeclarativeContainer):
 
     config = providers.Configuration()
 
-    light_bulb: LightBulb = providers.Factory(
-        LightBulb,
-    )
+    light_bulb: LightBulb = providers.Factory(LightBulb)
+
+
 
 
 class Container(containers.DeclarativeContainer):
@@ -36,10 +36,10 @@ class Container(containers.DeclarativeContainer):
 
     devices: DeviceContainer = providers.Container(
         DeviceContainer,
-        config=config,
+        config=config.devices,
     )
 
     services: ServiceContainer = providers.Container(
         ServiceContainer,
-        config=config,
+        config=config.services,
     )
