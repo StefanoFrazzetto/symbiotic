@@ -1,18 +1,19 @@
 from __future__ import annotations
 
+import logging
 import math
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 
-from symbiotic.core.interfaces import Loggable
-from .actions import Actionable
-from symbiotic.services.responses import ServiceResponse
 from symbiotic.services.base import BaseService
+from symbiotic.services.responses import ServiceResponse
+
+from .actions import Actionable
 from .parameters import LightBulbParameters, Parameters
 
 
-class SmartDevice(Loggable, Actionable, ABC):
+class SmartDevice(Actionable, ABC):
     """
     SmartDevice encapsulates the methods to control any smart device.
 
@@ -57,7 +58,7 @@ class SmartDevice(Loggable, Actionable, ABC):
         self._state = state
 
     def _change_state(self, state: SmartDevice.State, **params) -> ServiceResponse:
-        self.logger.debug(f"Invoked _change_state: '{state}' with '{params}'")
+        logging.debug(f"Invoked _change_state: '{state}' with '{params}'")
 
         if not self._service:
             raise RuntimeError('You need to add a service to this device')
@@ -66,7 +67,7 @@ class SmartDevice(Loggable, Actionable, ABC):
         if (last_update := self.last_update) < SmartDevice.UPDATES_THROTTLE:
             remaining = SmartDevice.UPDATES_THROTTLE - last_update
             message = f'Please wait {remaining} seconds...'
-            self.logger.debug(message)
+            logging.debug(message)
             return ServiceResponse(False, message)
 
         if type(params) is dict:

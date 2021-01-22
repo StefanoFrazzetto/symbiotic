@@ -1,5 +1,3 @@
-import logging
-
 from abc import ABC, abstractmethod
 from symbiotic.services.responses import ServiceResponse
 
@@ -7,9 +5,7 @@ from symbiotic.services.responses import ServiceResponse
 class BaseService(ABC):
 
     def __init__(self, *args, **kwargs) -> None:
-        self.logger = logging.getLogger(
-            f'{__name__}.{self.name}',
-        )
+        super().__init__(*args, **kwargs)
 
     @property
     def name(self) -> str:

@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import atexit
 import functools
+import logging
 import secrets
 from abc import ABC
 from contextlib import contextmanager
 from typing import Callable, List
 
 from ..core import _event_bus, _scheduler
-from ..core.interfaces import Loggable
 
 
-class Action(Loggable):
+class Action(object):
 
     bus = _event_bus
     scheduler = _scheduler
@@ -55,7 +55,7 @@ class EventedAction(Action):
         super().__init__(**kwargs)
         self.event = on
         self.bus.add_event(self, self.event)
-        self.logger.debug(f'{self.event} registered on bus')
+        logging.debug(f'{self.event} registered on bus')
 
     def unregister(self) -> None:
         """ Removes the action from the bus. """
@@ -67,7 +67,7 @@ class EventedAction(Action):
         # This could be solved in a better way, but the lazy one take less time.
         self.__name__ = self
         self.bus.remove_event(self, self.event)
-        self.logger.debug(f'removed {self.event} from bus')
+        logging.debug(f'removed {self.event} from bus')
 
 
 class ScheduledAction(Action):
@@ -86,15 +86,15 @@ class ScheduledAction(Action):
             raise AttributeError(err)
 
         self.job.do(self)
-        self.logger.debug(f'{self.name} added to the schedule')
+        logging.debug(f'{self.name} added to the schedule')
 
     def unregister(self) -> bool:
         self.scheduler.cancel_job(self.job)
-        self.logger.debug(f'{self.name} removed from the schedule')
+        logging.debug(f'{self.name} removed from the schedule')
         return True
 
 
-class ActionScheduler(Loggable):
+class ActionScheduler(object):
 
     def __init__(self, func: Callable = None, **kwargs):
         self.name = kwargs.pop('name', None)

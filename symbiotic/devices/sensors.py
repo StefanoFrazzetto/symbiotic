@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 
 from gpiozero import MotionSensor as GPIOZeroMotionSensor
@@ -8,7 +9,7 @@ from ..core import _event_bus, _scheduler
 from ..core.exceptions import ConfigurationError
 
 
-class MotionSensor(interfaces.Loggable, ABC):
+class MotionSensor(ABC):
     """
     MotionSensor provides an interface for motion sensors.
 
@@ -35,11 +36,11 @@ class MotionSensor(interfaces.Loggable, ABC):
         return f'{self.name}:inactive'
 
     def active_hook(self):
-        self.logger.debug(f'{self.name}: movement detected.')
+        logging.debug(f'{self.name}: movement detected.')
         self.bus.emit(self.active)
 
     def inactive_hook(self):
-        self.logger.debug(f'{self.name}: movement stopped.')
+        logging.debug(f'{self.name}: movement stopped.')
         self.bus.emit(self.inactive)
 
 

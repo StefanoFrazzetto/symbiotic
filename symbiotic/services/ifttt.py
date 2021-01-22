@@ -1,11 +1,13 @@
-import requests
+import logging
 from typing import Any
 
-from symbiotic.devices.parameters import Parameters
+import requests
+from schema import And, Optional, Or, Schema
 from symbiotic.core.exceptions import ConfigurationError
+from symbiotic.devices.parameters import Parameters
+
 from .base import BaseService
 from .responses import ServiceResponse
-from schema import Schema, Optional, And, Or
 
 
 class IFTTT(BaseService):
@@ -58,7 +60,7 @@ class IFTTT(BaseService):
         url = self._url.format(event_name=event_name, key=self._key)
         response = requests.post(url, parameters)
 
-        self.logger.debug(f'Request body: {response.request.body}')
-        self.logger.info(f'{response.text}')
+        logging.debug(f'Request body: {response.request.body}')
+        logging.info(f'{response.text}')
 
         return ServiceResponse.from_response(response)

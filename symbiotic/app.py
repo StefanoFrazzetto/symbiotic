@@ -33,6 +33,25 @@ class Symbiotic(object):
         return self.container.config
 
     @property
+    def debug(self) -> bool:
+        if (debug := self.config.debug) is not None:
+            return debug
+        return False
+
+    @property
+    def name(self) -> str:
+        return 'Symbiotic'
+
+    @cached_property
+    def logger(self):
+        logger = logging.getLogger(self.name)
+
+        if self.debug and not logger.level:
+            logger.setLevel(logging.DEBUG)
+
+        return logger
+
+    @property
     def devices(self, *args, **kwargs):
         return self.container.devices
 
