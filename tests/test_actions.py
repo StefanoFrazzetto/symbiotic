@@ -11,7 +11,6 @@ class Test_Action_Unit(TestCase):
         action = Action()
         self.assertIsNotNone(action)
         self.assertIsNone(action.func)
-        self.assertIsNotNone(action.logger)  # superclass attribute
 
     def test_init2(self):
         def job():
@@ -20,7 +19,6 @@ class Test_Action_Unit(TestCase):
         action = Action(job)
         self.assertIsNotNone(action)
         self.assertIsNotNone(action.func)
-        self.assertIsNotNone(action.logger)  # superclass attribute
 
     def test_init3(self):
         with pytest.raises(TypeError):
