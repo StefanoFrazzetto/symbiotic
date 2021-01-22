@@ -1,3 +1,8 @@
 services:
-    IFTTT:
-        key: YOUR_IFTTT_WEBHOOKS_KEY
+  IFTTT:
+    key: YOUR_IFTTT_WEBHOOKS_KEY
+
+sensors:
+  pigpio:
+    host: raspberrypi
+    port: 8888
