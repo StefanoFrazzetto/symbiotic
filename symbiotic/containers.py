@@ -46,11 +46,6 @@ class SensorContainer(containers.DeclarativeContainer):
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
 
-    logging = providers.Resource(
-        logging.config.dictConfig,
-        config.logging
-    )
-
     devices: DeviceContainer = providers.Container(
         DeviceContainer,
         config=config.devices,
