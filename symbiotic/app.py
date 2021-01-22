@@ -6,29 +6,31 @@ import sys
 import time
 
 from cached_property import cached_property
+from dependency_injector.providers import Configuration
 
 from .core import _scheduler
+from .containers import (
+    Container,
+    DeviceContainer,
+    SensorContainer,
+    ServiceContainer,
+)
 
 
 class Symbiotic(object):
 
-    container: Container
-    devices: DeviceContainer
-    services: ServiceContainer
-
     def __init__(self):
-        self.container = self.create_container()
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.container: Container = self.create_container()
         atexit.register(self.shutdown)
 
-    def create_container(self) -> Symbiotic:
+    def create_container(self) -> Container:
         container = Container()
         container.init_resources()
         container.wire(modules=[sys.modules[__name__]])
         return container
 
     @property
-    def config(self):
+    def config(self) -> Configuration:
         return self.container.config
 
     @property
@@ -42,7 +44,7 @@ class Symbiotic(object):
         return 'Symbiotic'
 
     @cached_property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         logger = logging.getLogger(self.name)
 
         if self.debug and not logger.level:
@@ -51,18 +53,18 @@ class Symbiotic(object):
         return logger
 
     @property
-    def devices(self, *args, **kwargs):
+    def devices(self, *args, **kwargs) -> DeviceContainer:
         return self.container.devices
 
     @property
-    def sensors(self, *args, **kwargs):
+    def sensors(self, *args, **kwargs) -> SensorContainer:
         return self.container.sensors
 
     @property
-    def services(self):
+    def services(self) -> ServiceContainer:
         return self.container.services
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.logger.info(
                 'The application is running... Press CTRL+C to terminate.')
@@ -72,7 +74,7 @@ class Symbiotic(object):
         except KeyboardInterrupt:
             pass
 
-    def shutdown(self, *args):
+    def shutdown(self, *args) -> None:
         # sys.stderr.write("\r")  # suppress '^C' in terminal
         # https://stackoverflow.com/a/48726537/5874339
         self.logger.info('Shutdown initiated. Please wait...')
