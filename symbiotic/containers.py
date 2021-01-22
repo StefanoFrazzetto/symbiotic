@@ -1,9 +1,11 @@
 import logging.config
 
 from dependency_injector import containers, providers
+from gpiozero.pins.pigpio import PiGPIOFactory
 
 from .devices import LightBulb
 from .services import IFTTT
+from .devices import sensors
 
 
 class ServiceContainer(containers.DeclarativeContainer):
@@ -24,6 +26,21 @@ class DeviceContainer(containers.DeclarativeContainer):
     light_bulb: LightBulb = providers.Factory(LightBulb)
 
 
+class SensorContainer(containers.DeclarativeContainer):
+
+    config = providers.Configuration()
+
+    pin_factory = providers.FactoryAggregate(
+        pigpio=providers.Factory(
+            PiGPIOFactory,
+            host=config.pigpio.host,
+            port=config.pigpio.port
+        ),
+    )
+
+    gpio_motion_sensor: sensors.GPIOMotionSensor = providers.Factory(
+        sensors.GPIOMotionSensor,
+    )
 
 
 class Container(containers.DeclarativeContainer):
@@ -37,6 +54,11 @@ class Container(containers.DeclarativeContainer):
     devices: DeviceContainer = providers.Container(
         DeviceContainer,
         config=config.devices,
+    )
+
+    sensors: SensorContainer = providers.Container(
+        SensorContainer,
+        config=config.sensors,
     )
 
     services: ServiceContainer = providers.Container(

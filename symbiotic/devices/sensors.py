@@ -1,9 +1,11 @@
 from abc import ABC
 
 from gpiozero import MotionSensor as GPIOZeroMotionSensor
+from gpiozero.exc import BadPinFactory
 from symbiotic.core import interfaces
 
 from ..core import _event_bus, _scheduler
+from ..core.exceptions import ConfigurationError
 
 
 class MotionSensor(interfaces.Loggable, ABC):
@@ -44,7 +46,15 @@ class MotionSensor(interfaces.Loggable, ABC):
 class GPIOMotionSensor(MotionSensor):
 
     def __init__(self, name: str, pin: int, *args, **kwargs):
+
+        try:
+            pin_factory = kwargs.pop('pin_factory', None)
+            self._sensor = GPIOZeroMotionSensor(pin, pin_factory=pin_factory)
+        except BadPinFactory:
+            err = f"Cannot instantiate {self.name} without a pin factory!"
+            raise ConfigurationError(err)
+
         super().__init__(name, *args, **kwargs)
-        self._sensor = GPIOZeroMotionSensor(pin)
+
         self._sensor.when_motion = self.active_hook
         self._sensor.when_no_motion = self.inactive_hook

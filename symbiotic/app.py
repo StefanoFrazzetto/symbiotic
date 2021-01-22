@@ -5,7 +5,8 @@ import logging
 import sys
 import time
 
-from .containers import Container, DeviceContainer, ServiceContainer
+from cached_property import cached_property
+
 from .core import _scheduler
 
 
@@ -34,6 +35,10 @@ class Symbiotic(object):
     @property
     def devices(self, *args, **kwargs):
         return self.container.devices
+
+    @property
+    def sensors(self, *args, **kwargs):
+        return self.container.sensors
 
     @property
     def services(self):
