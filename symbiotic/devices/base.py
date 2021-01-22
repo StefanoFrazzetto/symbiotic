@@ -31,10 +31,10 @@ class SmartDevice(Loggable, Actionable, ABC):
             return self.value
 
     def __init__(self, name: str, *args, **kwargs) -> None:
-        self.name = name
-        self._state = kwargs.pop('state', None)
-        self._service = kwargs.pop('service', None)
-        self._parameters = self.default_parameters
+        self.name: str = name
+        self._state: SmartDevice.State = kwargs.pop('state', None)
+        self._service: BaseService = kwargs.pop('service', None)
+        self._parameters: Parameters = self.default_parameters
         self._last_update = None
         super().__init__(*args, **kwargs)
 
