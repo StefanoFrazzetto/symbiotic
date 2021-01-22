@@ -23,7 +23,6 @@ class Symbiotic(object):
 
     def create_container(self) -> Symbiotic:
         container = Container()
-        container.config.logging.from_yaml('configs/logging.yaml')
         container.init_resources()
         container.wire(modules=[sys.modules[__name__]])
         return container
