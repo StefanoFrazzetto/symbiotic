@@ -1,15 +1,14 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from typing import Union
 
 from colour import Color
 
 
 class Parameters(ABC):
 
-    @property
-    @abstractmethod
-    def default_values(self) -> dict:
-        raise NotImplementedError
+    default_values = {}
 
     @abstractmethod
     def ifttt(self) -> dict:
@@ -36,6 +35,12 @@ class Parameters(ABC):
 
 class LightBulbParameters(Parameters):
 
+    default_values: dict = {
+        'color': '#ffffff',
+        'brightness': 100,
+        'transition_duration': 1000
+    }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._color = None
@@ -44,10 +49,6 @@ class LightBulbParameters(Parameters):
 
         # set values using kwargs, or fall back to default ones
         self.update(**{**self.default_values, **kwargs})
-
-    @property
-    def default_values(self):
-        return {'color': '#ffffff', 'brightness': 100, 'transition_duration': 1000}
 
     def ifttt(self) -> dict:
         return {
