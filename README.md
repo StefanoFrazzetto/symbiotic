@@ -26,7 +26,7 @@ app.config.from_yaml('config.yaml')
 ```python
 light_bulb = app.devices.light_bulb(
     'bedroom', 
-    service=app.services.IFTTT  # <--- service to control the device
+    service=app.services.IFTTT  # <--- the service to control your device
 )
 ```
 
@@ -35,11 +35,11 @@ light_bulb = app.devices.light_bulb(
 # set a daily schedule to *turn on* the device using parameters
 with light_bulb.schedule(light_bulb.turn_on) as schedule:
     schedule.add(brightness=10).every().day.at('07:30')
-    schedule.add(brightness=80, , transition_duration='30m').every().day.at('18:00')
+    schedule.add(brightness=80, transition_duration='30m').every().day.at('18:00')
 
 # set a daily schedule to *turn off* the device using parameters (coming soon)
 with light_bulb.schedule(light_bulb.turn_off) as schedule:
-    schedule.add(color='red',transition_duration='60m').every().day.at('22:30')
+    schedule.add(color='red', transition_duration='60m').every().day.at('22:30')
 ```
 
 4. Run the app
