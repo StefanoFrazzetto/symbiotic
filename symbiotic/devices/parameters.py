@@ -78,8 +78,33 @@ class LightBulbParameters(Parameters):
         self._brightness = value
         return self
 
-    def transition_duration(self, seconds: int) -> LightBulbParameters:
+    @staticmethod
+    def convert_duration_string(duration: str):
+        value = duration.rstrip('smh')
+        unit = duration[len(value):]
+
+        if not value.isnumeric and not int(value):
+            raise ValueError('Invalid type for transition duration value.')
+
+        unit = unit.lower()
+        value = int(value)
+        if unit == 'm':
+            value = value * 60
+        elif unit == 'h':
+            value = value * 3600
+        elif unit != 's' and unit != '':
+            raise ValueError('Invalid type for transition duration unit.')
+
+        return value
+
+    def transition_duration(self, duration: Union[int, str] = 0) -> LightBulbParameters:
+        if type(duration) is str:
+            seconds = self.convert_duration_string(duration)
+        else:
+            seconds = duration
+
         if seconds < 0:
             raise ValueError('Transition duration must be a positive number')
+
         self._transition_duration = seconds * 1000
         return self
