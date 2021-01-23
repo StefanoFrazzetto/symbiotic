@@ -51,7 +51,7 @@ For a more exhaustive example, see [example.py](example.py).
 
 ## Sensors
 
-Symbiotic allows your devices to react to events triggered by remote devices. As an example, the following shows how to turn on a light bulb when motion is detected
+Symbiotic allows your devices to react to events triggered by remote devices. The following shows how to turn on a light bulb when a motion sensor is triggered
 ```python
 # control GPIO devices through pigpio (remote RaspberryPi controller)
 pin_factory = app.sensors.pin_factory('pigpio', host='192.168.1.42')
@@ -79,7 +79,7 @@ To learn how you can configure an IFTTT applet, please read the
 Once your applet is configured, make sure to add your configuration 
 parameters in _config.yaml_.
 
-### More service to come...
+### More services to come...
 
 ## Contributions
 
