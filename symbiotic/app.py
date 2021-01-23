@@ -25,6 +25,7 @@ class Symbiotic(object):
 
     def create_container(self) -> Container:
         container = Container()
+        container.config.debug.from_env('SYMBIOTIC_DEBUG')
         container.init_resources()
         container.wire(modules=[sys.modules[__name__]])
         return container
