@@ -126,8 +126,8 @@ class LightBulb(SmartDevice):
     def default_parameters(self) -> LightBulbParameters:
         return LightBulbParameters()
 
-    def switch_on(self, **params) -> ServiceResponse:
+    def turn_on(self, **params) -> ServiceResponse:
         return self._change_state(SmartDevice.State.ON, **params)
 
-    def switch_off(self, **params) -> ServiceResponse:
+    def turn_off(self, **params) -> ServiceResponse:
         return self._change_state(SmartDevice.State.OFF, **params)
