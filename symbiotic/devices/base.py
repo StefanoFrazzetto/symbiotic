@@ -50,15 +50,25 @@ class SmartDevice(Actionable, ABC):
         return SmartDevice.states_events_mapping[device_state]
 
     @property
+    @abstractmethod
+    def default_parameters(self) -> Parameters:
+        raise NotImplementedError(
+            "The subclass must override 'parameters'.")
+
+    @property
+    def parameters(self) -> Parameters:
+        return self._parameters
+
+    @property
     def state(self) -> State:
         return self._state
 
     @state.setter
-    def state(self, state: SmartDevice.State):
+    def state(self, state: SmartDevice.State) -> None:
         self._state = state
 
-    def _change_state(self, state: SmartDevice.State, **params) -> ServiceResponse:
-        logging.debug(f"Invoked _change_state: '{state}' with '{params}'")
+    def _change_state(self, state: SmartDevice.State, **kwargs) -> ServiceResponse:
+        logging.debug(f"Invoked _change_state: '{state}' with '{kwargs}'")
 
         if not self._service:
             raise RuntimeError('You need to add a service to this device')
@@ -70,27 +80,22 @@ class SmartDevice(Actionable, ABC):
             logging.debug(message)
             return ServiceResponse(False, message)
 
-        if type(params) is dict:
-            # update current parameters with the ones passed
-            self.parameters.update(**params)
-        else:
-            # unexpected type of params
-            if params is not None or not issubclass(type(params), Parameters):
-                raise ValueError(f'Invalid parameters type: {params}')
+        # create new parameters
+        parameters = self.parameters.create(**kwargs)
 
         # map the event enum to its string
         service_event = self._state_to_service_event(state)
 
         # trigger the service
-        response = self._service().trigger(
+        response = self._service.trigger(
             event_name=service_event,
-            parameters=self.parameters
+            parameters=parameters
         )
 
         # update the state and last-update timestamp
         if response.success:
             self.state = state
-            self.update()
+            self.update(parameters)
 
         return response
 
@@ -103,18 +108,9 @@ class SmartDevice(Actionable, ABC):
         duration = now - self._last_update
         return int(duration.total_seconds())
 
-    def update(self) -> None:
+    def update(self, parameters: Parameters) -> None:
+        self._parameters = parameters
         self._last_update = datetime.now()
-
-    @property
-    @abstractmethod
-    def default_parameters(self) -> Parameters:
-        """ Subclasses must provide their own type of parameters. """
-        pass
-
-    @property
-    def parameters(self) -> Parameters:
-        return self._parameters
 
 
 class LightBulb(SmartDevice):
@@ -123,7 +119,7 @@ class LightBulb(SmartDevice):
         super().__init__(name, *args, **kwargs)
 
     @property
-    def default_parameters(self) -> LightBulbParameters:
+    def default_parameters(self):
         return LightBulbParameters()
 
     def turn_on(self, **params) -> ServiceResponse:
