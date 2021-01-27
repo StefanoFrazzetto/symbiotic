@@ -24,9 +24,11 @@ app.config.from_yaml('config.yaml')
 
 2. Configure your devices and services
 ```python
+ifttt = app.services.IFTTT()
+
 light_bulb = app.devices.light_bulb(
     'bedroom', 
-    service=app.services.IFTTT  # <--- the service to control your device
+    service=ifttt  # <--- the service to control your device
 )
 ```
 
