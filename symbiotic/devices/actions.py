@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import atexit
 import functools
 import logging
@@ -25,7 +23,7 @@ class Action(object):
         atexit.register(self.unregister)
         super().__init__()
 
-    def __eq__(self, other: Action):
+    def __eq__(self, other: 'Action'):
         return self.name == other.name
 
     def __hash__(self):
@@ -38,7 +36,7 @@ class Action(object):
 
         return self.func()
 
-    def do(self, func: Callable, *args, **kwargs) -> Action:
+    def do(self, func: Callable, *args, **kwargs) -> 'Action':
         self.func = functools.partial(func, *args, **kwargs)
         return self
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import logging
 import math
 from abc import ABC, abstractmethod
@@ -64,10 +62,10 @@ class SmartDevice(Actionable, ABC):
         return self._state
 
     @state.setter
-    def state(self, state: SmartDevice.State) -> None:
+    def state(self, state: 'SmartDevice.State') -> None:
         self._state = state
 
-    def _change_state(self, state: SmartDevice.State, **kwargs) -> ServiceResponse:
+    def _change_state(self, state: 'SmartDevice.State', **kwargs) -> ServiceResponse:
         logging.debug(f"Invoked _change_state: '{state}' with '{kwargs}'")
 
         if not self._service:
@@ -75,8 +73,8 @@ class SmartDevice(Actionable, ABC):
 
         # throttle requests to service
         last_update = self.last_update
-        if last_update < SmartDevice.UPDATES_THROTTLE:
-            remaining = SmartDevice.UPDATES_THROTTLE - last_update
+        if last_update < self.UPDATES_THROTTLE:
+            remaining = self.UPDATES_THROTTLE - last_update
             message = f'Please wait {remaining} seconds...'
             logging.debug(message)
             return ServiceResponse(False, message)

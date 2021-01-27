@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 from abc import ABC, abstractmethod
 from typing import Union
@@ -76,7 +74,7 @@ class LightBulbParameters(Parameters):
         return value
 
     @validator('transition_duration')
-    def validate_transition_duration(cls, value: Union[int, str] = 0) -> LightBulbParameters:
+    def validate_transition_duration(cls, value: Union[int, str] = 0) -> 'LightBulbParameters':
         if type(value) is str:
             value = cls._convert_transition_duration(value)
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Enum
 from unittest import TestCase, mock
 
@@ -24,7 +22,7 @@ class StatusCodes(Enum):
     BAD_GATEWAY = (502, 'bad_gateway')
 
     @staticmethod
-    def by_reason(reason: str) -> StatusCodes:
+    def by_reason(reason: str) -> 'StatusCodes':
         for item in StatusCodes:
             if reason == item.value[1]:
                 return item
