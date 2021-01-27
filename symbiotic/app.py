@@ -36,7 +36,8 @@ class Symbiotic(object):
 
     @property
     def debug(self) -> bool:
-        if (debug := self.config.debug) is not None:
+        debug = self.config.debug
+        if debug is not None:
             return debug
         return False
 

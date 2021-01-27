@@ -74,7 +74,8 @@ class SmartDevice(Actionable, ABC):
             raise RuntimeError('You need to add a service to this device')
 
         # throttle requests to service
-        if (last_update := self.last_update) < SmartDevice.UPDATES_THROTTLE:
+        last_update = self.last_update
+        if last_update < SmartDevice.UPDATES_THROTTLE:
             remaining = SmartDevice.UPDATES_THROTTLE - last_update
             message = f'Please wait {remaining} seconds...'
             logging.debug(message)
