@@ -67,7 +67,7 @@ class Symbiotic(object):
     def run(self) -> None:
         try:
             self.logger.info(
-                'The application is running... Press CTRL+C to terminate.')
+                'The application is running... (Press CTRL+C to terminate)')
             while True:
                 _scheduler.run_pending()
                 time.sleep(1)

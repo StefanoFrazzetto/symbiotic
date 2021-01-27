@@ -1,17 +1,27 @@
 # symbiotic
 
+[![PyPI version](https://badge.fury.io/py/symbiotic.svg)](https://badge.fury.io/py/symbiotic)
+![Python package tests](https://github.com/StefanoFrazzetto/symbiotic/workflows/Python%20package%20tests/badge.svg)
+
 Symbiotic allows you to create a smart environment where 
 you have full control of your IoT devices. Sensors can be 
 paired to devices and services to create complex actions and schedules.
 
-Some of the main features of symbiotic are
+Some of the main features are
 
 - Dependency-injection
 - Event bus
 - Fluent interface
 - Job scheduling
 
-## Usage
+## Installing
+
+Install and update using [pip](https://pip.pypa.io/en/stable/quickstart/)
+```
+pip install symbiotic
+```
+
+## Example
 
 1. Create the application
 ```python
@@ -22,7 +32,7 @@ app = Symbiotic()
 app.config.from_yaml('config.yaml')
 ```
 
-2. Configure your devices and services
+2. Add your devices and services
 ```python
 ifttt = app.services.IFTTT()
 
@@ -32,7 +42,7 @@ light_bulb = app.devices.light_bulb(
 )
 ```
 
-3. Add custom schedules to your devices
+3. Customise the device schedule(s)
 ```python
 # set a daily schedule to *turn on* the device using parameters
 with light_bulb.schedule(light_bulb.turn_on) as schedule:
@@ -45,8 +55,10 @@ with light_bulb.schedule(light_bulb.turn_off) as schedule:
 ```
 
 4. Run the app
-```python
+```
 app.run()
+
+* The application is running... (Press CTRL+C to terminate)
 ```
 
 For a more exhaustive example, see [example.py](example.py).
