@@ -1,5 +1,3 @@
-import logging.config
-
 from dependency_injector import containers, providers
 from gpiozero.pins.pigpio import PiGPIOFactory
 

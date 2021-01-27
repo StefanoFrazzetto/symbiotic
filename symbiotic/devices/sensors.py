@@ -3,7 +3,6 @@ from abc import ABC
 
 from gpiozero import MotionSensor as GPIOZeroMotionSensor
 from gpiozero.exc import BadPinFactory
-from symbiotic.core import interfaces
 
 from ..core import _event_bus, _scheduler
 from ..core.exceptions import ConfigurationError
