@@ -2,76 +2,91 @@ import pytest
 from unittest import TestCase
 
 from symbiotic.devices.base import LightBulb
-from symbiotic.services.ifttt import IFTTT
-from pytest_mock import MockerFixture
+from symbiotic.services import BaseService, ServiceResponse
 
 SERVICE_CALL_SUCCESS = 'mock-success-call'
 SERVICE_CALL_FAIL = 'mock-fail-call'
 
 
-@pytest.fixture(scope='function')
-def ifttt_success(request, mocker: MockerFixture) -> IFTTT:
-    ifttt_mock = mocker.Mock(spec=IFTTT)
-    ifttt_mock.trigger.return_value = mocker.Mock(
-        success=True,
-        message=SERVICE_CALL_SUCCESS
-    )
-    # set a class attribute on the invoking test context
-    request.cls.ifttt = ifttt_mock
+###########################################
+#  ______ _      _
+# |  ____(_)    | |
+# | |__   ___  _| |_ _   _ _ __ ___  ___
+# |  __| | \ \/ / __| | | | '__/ _ \/ __|
+# | |    | |>  <| |_| |_| | | |  __/\__ \
+# |_|    |_/_/\_\\__|\__,_|_|  \___||___/
+###########################################
 
 
 @pytest.fixture(scope='function')
-def ifttt_fail(request, mocker: MockerFixture) -> IFTTT:
-    ifttt_mock = mocker.Mock(spec=IFTTT)
-    ifttt_mock.trigger.return_value = mocker.Mock(
-        success=False,
-        message=SERVICE_CALL_FAIL
-    )
-    # set a class attribute on the invoking test context
-    request.cls.ifttt = ifttt_mock
+def service_success(request) -> BaseService:
+    class ServiceSuccess(BaseService):
+        def trigger(self, *args, **kwargs):
+            return ServiceResponse(
+                success=True,
+                message=SERVICE_CALL_SUCCESS,
+            )
+
+    request.cls.service = ServiceSuccess()
 
 
-@pytest.mark.usefixtures('ifttt_success')
-class Test_Integration_SmartDevices(TestCase):
+@pytest.fixture(scope='function')
+def service_fail(request) -> BaseService:
+    class ServiceFail(BaseService):
+        def trigger(self, *args, **kwargs):
+            return ServiceResponse(
+                success=False,
+                message=SERVICE_CALL_FAIL,
+            )
 
-    def test_factory(self) -> None:
-        light_bulb = LightBulb('room', service=self.ifttt)
-        response = light_bulb.switch_on()
-        assert response.success, response.message
+    request.cls.service = ServiceFail()
 
 
-@pytest.mark.usefixtures('ifttt_success')
-class Test_Integration_LightBulb_IFTTT_Success(TestCase):
+#############################
+#   _______        _
+#  |__   __|      | |
+#     | | ___  ___| |_ ___
+#     | |/ _ \/ __| __/ __|
+#     | |  __/\__ \ |_\__ \
+#     |_|\___||___/\__|___/
+#############################
 
+
+@pytest.mark.usefixtures('service_success')
+class Test_Unit_LightBulb(TestCase):
     def test_create_light_bulb(self) -> None:
-        light_bulb = LightBulb('room', service=self.ifttt)
-        assert light_bulb is not None
-        assert type(light_bulb) is LightBulb
-
-    def test_light_bulb_switch_on_success(self) -> None:
-        light_bulb = LightBulb('room', service=self.ifttt)
-        response = light_bulb.switch_on()
-        assert response.success is True
-        assert response.message == SERVICE_CALL_SUCCESS
-
-    def test_light_bulb_switch_off_success(self) -> None:
-        light_bulb = LightBulb('room', service=self.ifttt)
-        response = light_bulb.switch_off()
-        assert response.success is True
-        assert response.message == SERVICE_CALL_SUCCESS
+        light_bulb = LightBulb('room', service=self.service)
+        self.assertIsNotNone(light_bulb)
+        self.assertEqual(type(light_bulb), LightBulb)
 
 
-@pytest.mark.usefixtures('ifttt_fail')
-class Test_Integration_LightBulb_IFTTT_Fail(TestCase):
+@pytest.mark.usefixtures('service_success')
+class Test_Integration_LightBulb_Success(TestCase):
 
-    def test_light_bulb_switch_off_fail(self) -> None:
-        light_bulb = LightBulb('room', service=self.ifttt)
-        response = light_bulb.switch_off()
-        assert response.success is False
-        assert response.message == SERVICE_CALL_FAIL
+    def test_light_bulb_turn_on_success(self) -> None:
+        light_bulb = LightBulb('room', service=self.service)
+        response = light_bulb.turn_on()
+        self.assertTrue(response.success)
+        self.assertEqual(response.message, SERVICE_CALL_SUCCESS)
 
-    def test_light_bulb_switch_on_fail(self) -> None:
-        light_bulb = LightBulb('room', service=self.ifttt)
-        response = light_bulb.switch_on()
-        assert response.success is False
-        assert response.message == SERVICE_CALL_FAIL
+    def test_light_bulb_turn_off_success(self) -> None:
+        light_bulb = LightBulb('room', service=self.service)
+        response = light_bulb.turn_off()
+        self.assertTrue(response.success)
+        self.assertEqual(response.message, SERVICE_CALL_SUCCESS)
+
+
+@pytest.mark.usefixtures('service_fail')
+class Test_Integration_LightBulb_Fail(TestCase):
+
+    def test_light_bulb_turn_off_fail(self) -> None:
+        light_bulb = LightBulb('room', service=self.service)
+        response = light_bulb.turn_off()
+        self.assertFalse(response.success)
+        self.assertEqual(response.message, SERVICE_CALL_FAIL)
+
+    def test_light_bulb_turn_on_fail(self) -> None:
+        light_bulb = LightBulb('room', service=self.service)
+        response = light_bulb.turn_on()
+        self.assertFalse(response.success)
+        self.assertEqual(response.message, SERVICE_CALL_FAIL)
