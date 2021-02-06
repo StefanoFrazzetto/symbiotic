@@ -2,7 +2,12 @@
     "editor.rulers": [
         72,
         79,
+        90,
         120
+    ],
+
+    "python.formatting.autopep8Args": [
+        "--max-line-length=120"
     ],
 
     "python.linting.pylintEnabled": false,
@@ -10,6 +15,7 @@
     "python.linting.enabled": true,
     "python.linting.flake8Args": [
         "--ignore",
+        "--max-line-length=120",
         "E501, E701"
     ],
     // "python.linting.flake8CategorySeverity.F": "Warning"

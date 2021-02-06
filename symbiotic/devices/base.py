@@ -31,8 +31,6 @@ class SmartDevice(Actionable, ABC):
     improves readability, and reduces code coupling.
     """
 
-    UPDATES_THROTTLE: int = 5
-
     "Map device physical states to IFTTT service_event names."
     state_event_mapping: dict = {
         State.ON: 'bedroom_light_color',
