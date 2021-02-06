@@ -2,6 +2,7 @@ import logging
 import math
 from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import NamedTuple
 from enum import Enum
 
 from symbiotic.services.base import BaseService
@@ -10,6 +11,16 @@ from symbiotic.services.responses import ServiceResponse
 from .actions import Actionable
 from .parameters import LightBulbParameters, Parameters
 
+
+class DeviceConfigurationError(Exception):
+    pass
+
+class State(Enum):
+    ON = 'on'
+    OFF = 'off'
+
+    def __str__(self):
+        return self.value
 
 class SmartDevice(Actionable, ABC):
     """
@@ -22,30 +33,18 @@ class SmartDevice(Actionable, ABC):
 
     UPDATES_THROTTLE: int = 5
 
-    class State(Enum):
-        ON = 'on'
-        OFF = 'off'
-
-        def __str__(self):
-            return self.value
-
-    def __init__(self, name: str, *args, **kwargs) -> None:
-        self.name: str = name
-        self._state: SmartDevice.State = kwargs.pop('state', None)
-        self._service: BaseService = kwargs.pop('service', None)
-        self._parameters: Parameters = self.default_parameters
-        self._last_update = None
-        super().__init__(*args, **kwargs)
-
     "Map device physical states to IFTTT service_event names."
-    states_events_mapping: dict = {
+    state_event_mapping: dict = {
         State.ON: 'bedroom_light_color',
         State.OFF: 'switch_off'
     }
 
-    @staticmethod
-    def _state_to_service_event(device_state: State):
-        return SmartDevice.states_events_mapping[device_state]
+    def __init__(self, name: str, *args, **kwargs) -> None:
+        self.name: str = name
+        self.service: BaseService = kwargs.pop('service', None)
+        self._state: SmartDevice.State = kwargs.pop('state', None)
+        self._parameters: Parameters = self.default_parameters
+        super().__init__(*args, **kwargs)
 
     @property
     @abstractmethod
@@ -57,59 +56,37 @@ class SmartDevice(Actionable, ABC):
     def parameters(self) -> Parameters:
         return self._parameters
 
+    @parameters.setter
+    def parameters(self, params):
+        if not isinstance(params, Parameters):
+            raise TypeError(f'Wrong type for parameters, got {params}')
+
+        self._parameters = params
+
     @property
     def state(self) -> State:
         return self._state
 
     @state.setter
-    def state(self, state: 'SmartDevice.State') -> None:
+    def state(self, state: 'State') -> None:
         self._state = state
 
-    def _change_state(self, state: 'SmartDevice.State', **kwargs) -> ServiceResponse:
-        logging.debug(f"Invoked _change_state: '{state}' with '{kwargs}'")
+    def _change_state(self, state: 'State', **kwargs) -> ServiceResponse:
+        if not self.service:
+            raise DeviceConfigurationError('You need to add a service to this device')
 
-        if not self._service:
-            raise RuntimeError('You need to add a service to this device')
-
-        # throttle requests to service
-        last_update = self.last_update
-        if last_update < self.UPDATES_THROTTLE:
-            remaining = self.UPDATES_THROTTLE - last_update
-            message = f'Please wait {remaining} seconds...'
-            logging.debug(message)
-            return ServiceResponse(False, message)
-
-        # create new parameters
         parameters = self.parameters.create(**kwargs)
-
-        # map the event enum to its string
-        service_event = self._state_to_service_event(state)
-
-        # trigger the service
-        response = self._service.trigger(
-            event_name=service_event,
+        response = self.service.trigger(
+            event_name=SmartDevice.state_event_mapping[state],
             parameters=parameters
         )
 
-        # update the state and last-update timestamp
+        # update device state and parameters
         if response.success:
             self.state = state
-            self.update(parameters)
+            self.parameters = parameters
 
         return response
-
-    @property
-    def last_update(self) -> int:
-        if self._last_update is None:
-            return math.inf
-
-        now = datetime.now()
-        duration = now - self._last_update
-        return int(duration.total_seconds())
-
-    def update(self, parameters: Parameters) -> None:
-        self._parameters = parameters
-        self._last_update = datetime.now()
 
 
 class LightBulb(SmartDevice):
@@ -122,7 +99,7 @@ class LightBulb(SmartDevice):
         return LightBulbParameters()
 
     def turn_on(self, **params) -> ServiceResponse:
-        return self._change_state(SmartDevice.State.ON, **params)
+        return self._change_state(State.ON, **params)
 
     def turn_off(self, **params) -> ServiceResponse:
-        return self._change_state(SmartDevice.State.OFF, **params)
+        return self._change_state(State.OFF, **params)
