@@ -5,14 +5,13 @@ from datetime import datetime
 from typing import NamedTuple
 from enum import Enum
 
+from .exceptions import ConfigurationError
 from .services import ServiceResponse, BaseService
 
 from .actions import Actionable
 from .parameters import LightBulbParameters, Parameters
 
 
-class DeviceConfigurationError(Exception):
-    pass
 
 class State(Enum):
     ON = 'on'
@@ -70,7 +69,7 @@ class SmartDevice(Actionable, ABC):
 
     def _change_state(self, state: 'State', **kwargs) -> ServiceResponse:
         if not self.service:
-            raise DeviceConfigurationError('You need to add a service to this device')
+            raise ConfigurationError('You need to add a service to this device')
 
         parameters = self.parameters.create(**kwargs)
         response = self.service.trigger(
