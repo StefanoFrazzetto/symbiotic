@@ -4,8 +4,8 @@ from abc import ABC
 from gpiozero import MotionSensor as GPIOZeroMotionSensor
 from gpiozero.exc import BadPinFactory
 
-from ..core import _event_bus, _scheduler
-from ..core.exceptions import ConfigurationError
+from .core import _event_bus, _scheduler
+from .core.exceptions import ConfigurationError
 
 
 class MotionSensor(ABC):

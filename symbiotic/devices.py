@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import NamedTuple
 from enum import Enum
 
-from ..services import ServiceResponse, BaseService
+from .services import ServiceResponse, BaseService
 
 from .actions import Actionable
 from .parameters import LightBulbParameters, Parameters

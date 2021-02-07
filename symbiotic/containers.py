@@ -3,7 +3,7 @@ from gpiozero.pins.pigpio import PiGPIOFactory
 
 from .devices import LightBulb
 from .services import IFTTT
-from .devices import sensors
+from .sensors import GPIOMotionSensor
 
 
 class ServiceContainer(containers.DeclarativeContainer):
@@ -36,8 +36,8 @@ class SensorContainer(containers.DeclarativeContainer):
         ),
     )
 
-    gpio_motion_sensor: sensors.GPIOMotionSensor = providers.Factory(
-        sensors.GPIOMotionSensor,
+    gpio_motion_sensor: GPIOMotionSensor = providers.Factory(
+        GPIOMotionSensor,
     )
 
 

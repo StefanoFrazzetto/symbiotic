@@ -6,7 +6,7 @@ from abc import ABC
 from contextlib import contextmanager
 from typing import Callable, List
 
-from ..core import _event_bus, _scheduler
+from .core import _event_bus, _scheduler
 
 
 class Action(object):

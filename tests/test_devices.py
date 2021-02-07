@@ -1,7 +1,7 @@
 import pytest
 from unittest import TestCase
 
-from symbiotic.devices.base import LightBulb
+from symbiotic.devices import LightBulb
 from symbiotic.services import BaseService, ServiceResponse
 
 SERVICE_CALL_SUCCESS = 'mock-success-call'
