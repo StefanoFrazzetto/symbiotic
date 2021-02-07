@@ -1,13 +1,37 @@
 import logging
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Any
 
 import requests
 from schema import And, Optional, Or, Schema
+
 from symbiotic.core.exceptions import ConfigurationError
 from symbiotic.devices.parameters import Parameters
 
-from .base import BaseService
-from .responses import ServiceResponse
+
+@dataclass
+class ServiceResponse(object):
+    success: bool
+    message: str
+
+    @staticmethod
+    def from_response(response: requests.Response):
+        success = response.ok
+        return ServiceResponse(success=success, message=response.text)
+
+
+class BaseService(ABC):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}'
+
+    @abstractmethod
+    def trigger(self, *args, **kwargs) -> ServiceResponse:
+        pass
 
 
 class IFTTT(BaseService):

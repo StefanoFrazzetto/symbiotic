@@ -5,8 +5,7 @@ from datetime import datetime
 from typing import NamedTuple
 from enum import Enum
 
-from symbiotic.services.base import BaseService
-from symbiotic.services.responses import ServiceResponse
+from ..services import ServiceResponse, BaseService
 
 from .actions import Actionable
 from .parameters import LightBulbParameters, Parameters
