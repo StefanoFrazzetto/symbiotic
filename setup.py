@@ -56,6 +56,7 @@ setuptools.setup(
         'test': [
             'pytest',
             'pytest-mock',
+            'freezegun',
         ],
         'yaml': ['PyYAML>=5.4']
     },
