@@ -1,4 +1,4 @@
-import datetime
+from datetime import time, datetime
 from enum import IntEnum
 from typing import Set, Union
 
@@ -21,10 +21,25 @@ class Schedule(object):
 
     def __init__(self):
         self.weekdays: Set[Day] = set()
-        self.time: Union[str, None] = None
+        self.time: Union[time, None] = None
 
     def __repr__(self):
         return f'{self.__class__.__qualname__}, {self.weekdays}'
+
+    def at(self, time_string: str):
+        self.time = self._time_string_to_datetime(time_string)
+
+    @staticmethod
+    def _time_string_to_datetime(time_string: str):
+        split_string = time_string.split(':')
+        if 1 < len(split_string) > 3:
+            e = f'Invalid time string provided, {time_string}'
+            raise ScheduleConfigurationError(e)
+
+        # get correct time format string depending on params provided
+        time_format = {1: '%H', 2: '%H:%M', 3: '%H:%M:%S'}
+        schedule_datetime = datetime.strptime(time_string, time_format[len(split_string)])
+        return schedule_datetime.time()
 
     def between(self, *days) -> 'Schedule':
         """
@@ -87,6 +102,6 @@ class Schedule(object):
             e = 'Schedules must have at least one day.'
             raise ScheduleConfigurationError(e)
 
-        today = datetime.datetime.now()
+        today = datetime.now()
         weekday = Day(today.weekday())
         return weekday in self.weekdays

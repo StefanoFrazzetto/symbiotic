@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from symbiotic.schedule import Day, Schedule, ScheduleConfigurationError
 
 
-class Test_Schedule_Unit(TestCase):
+class Test_Schedule_Days_Unit(TestCase):
 
     @freeze_time("2021-02-17")  # Wednesday
     def test_schedule_one_day(self):
@@ -53,3 +53,24 @@ class Test_Schedule_Unit(TestCase):
         schedule.between(Day.SATURDAY, Day.SATURDAY)
         expected_days = {Day.SATURDAY, Day.SUNDAY, Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY}
         self.assertEqual(expected_days, schedule.weekdays)
+
+
+class Test_Schedule_Time_Unit(TestCase):
+
+    def test_schedule_valid_time_hms(self):
+        schedule = Schedule()
+        schedule.at('13:15:45')
+        self.assertEqual(13, schedule.time.hour)
+        self.assertEqual(15, schedule.time.minute)
+        self.assertEqual(45, schedule.time.second)
+
+    def test_schedule_valid_time_hm(self):
+        schedule = Schedule()
+        schedule.at('14:55')
+        self.assertEqual(14, schedule.time.hour)
+        self.assertEqual(55, schedule.time.minute)
+
+    def test_schedule_valid_time_h(self):
+        schedule = Schedule()
+        schedule.at('19')
+        self.assertEqual(19, schedule.time.hour)
