@@ -1,8 +1,7 @@
 from unittest import TestCase
 
-import pytest
-from symbiotic.core import _scheduler
-from symbiotic.actions import Action, ActionScheduler
+from symbiotic.actions import Action
+from symbiotic.schedule import Schedule
 
 
 class Test_Action_Unit(TestCase):

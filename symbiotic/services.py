@@ -6,7 +6,7 @@ from typing import Any
 import requests
 from schema import And, Optional, Or, Schema
 
-from symbiotic.core.exceptions import ConfigurationError
+from symbiotic.exceptions import ConfigurationError
 from symbiotic.parameters import Parameters
 
 
