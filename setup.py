@@ -42,7 +42,6 @@ setuptools.setup(
         'gpiozero',
         'pigpio',
         'pydantic',
-        'schedule',
         'schema',
         'requests'
     ],

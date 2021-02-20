@@ -87,4 +87,6 @@ class IFTTT(BaseService):
         logging.debug(f'Request body: {response.request.body}')
         logging.info(f'{response.text}')
 
+        print(response)
+
         return ServiceResponse.from_response(response)

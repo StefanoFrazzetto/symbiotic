@@ -8,9 +8,7 @@ from enum import Enum
 from .exceptions import ConfigurationError
 from .services import ServiceResponse, BaseService
 
-from .actions import Actionable
 from .parameters import LightBulbParameters, Parameters
-
 
 
 class State(Enum):
@@ -20,7 +18,7 @@ class State(Enum):
     def __str__(self):
         return self.value
 
-class SmartDevice(Actionable, ABC):
+class SmartDevice(ABC):
     """
     SmartDevice encapsulates the methods to control any smart device.
 
