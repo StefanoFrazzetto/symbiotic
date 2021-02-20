@@ -1,5 +1,5 @@
 __all__ = [
-    "Symbiotic"
+    'Symbiotic',
 ]
 
 from .app import Symbiotic
