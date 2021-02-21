@@ -141,14 +141,12 @@ class Schedule(object):
         days_interval = {Day(index % 7) for index in range(start_day, end_day + 1)}
         return days_interval
 
-    @property
     def weekdays(self):
         """Monday to Friday"""
         self.days = {day for day in Day}
         self.exclude(Day.SATURDAY, Day.SUNDAY)
         return self
 
-    @property
     def weekends(self):
         """Saturday and Sunday"""
         self.days = {Day.SATURDAY, Day.SUNDAY}

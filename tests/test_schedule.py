@@ -26,13 +26,11 @@ class Test_Schedule_Days_Unit(TestCase):
 
     @freeze_time("2021-02-17")  # Wednesday
     def test_schedule_one_day(self):
-        schedule = Schedule()
-        schedule.every(Day.WEDNESDAY).at('06:15')
+        schedule = Schedule().every(Day.WEDNESDAY).at('06:15')
         self.assertTrue(schedule.is_active_today())
 
     def test_schedule_not_valid_missing_time(self):
-        schedule = Schedule()
-        schedule.weekends()
+        schedule = Schedule().weekends()
         self.assertFalse(schedule.is_valid())
 
     def test_empty_schedule(self):
@@ -46,44 +44,37 @@ class Test_Schedule_Days_Unit(TestCase):
             schedule.between()
 
     def test_schedule_between_two_days(self):
-        schedule = Schedule()
-        schedule.between(Day.TUESDAY, Day.THURSDAY)
+        schedule = Schedule().between(Day.TUESDAY, Day.THURSDAY)
         expected_days = {Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY}
         self.assertEqual(expected_days, schedule.days)
 
     def test_schedule_between_two_days_with_rollover(self):
-        schedule = Schedule()
-        schedule.between(Day.SATURDAY, Day.TUESDAY)
+        schedule = Schedule().between(Day.SATURDAY, Day.TUESDAY)
         expected_days = {Day.SATURDAY, Day.SUNDAY, Day.MONDAY, Day.TUESDAY}
         self.assertEqual(expected_days, schedule.days)
 
     def test_schedule_between_and_exclude_one_day(self):
-        schedule = Schedule()
-        schedule.between(Day.SATURDAY, Day.TUESDAY).exclude(Day.MONDAY)
+        schedule = Schedule().between(Day.SATURDAY, Day.TUESDAY).exclude(Day.MONDAY)
         expected_days = {Day.SATURDAY, Day.SUNDAY, Day.TUESDAY}
         self.assertEqual(expected_days, schedule.days)
 
     def test_schedule_between_and_exclude_day_not_in_schedule(self):
-        schedule = Schedule()
-        schedule.between(Day.SATURDAY, Day.TUESDAY).exclude(Day.THURSDAY)
+        schedule = Schedule().between(Day.SATURDAY, Day.TUESDAY).exclude(Day.THURSDAY)
         expected_days = {Day.SATURDAY, Day.SUNDAY, Day.MONDAY, Day.TUESDAY}
         self.assertEqual(expected_days, schedule.days)
 
     def test_schedule_between_same_day(self):
-        schedule = Schedule()
-        schedule.between(Day.SATURDAY, Day.SATURDAY)
+        schedule = Schedule().between(Day.SATURDAY, Day.SATURDAY)
         expected_days = {Day.SATURDAY, Day.SUNDAY, Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY}
         self.assertEqual(expected_days, schedule.days)
 
     def test_schedule_weekdays(self):
-        schedule = Schedule()
-        schedule.weekdays()
+        schedule = Schedule().weekdays()
         expected_days = {day for day in Day} - {Day.SATURDAY, Day.SUNDAY}  # all - weekend
         self.assertEqual(expected_days, schedule.days)
 
     def test_schedule_weekends(self):
-        schedule = Schedule()
-        schedule.weekends()
+        schedule = Schedule().weekends()
         expected_days = {Day.SATURDAY, Day.SUNDAY}  # all - weekend
         self.assertEqual(expected_days, schedule.days)
 
@@ -91,21 +82,18 @@ class Test_Schedule_Days_Unit(TestCase):
 class Test_Schedule_Time_Unit(TestCase):
 
     def test_schedule_valid_time_hms(self):
-        schedule = Schedule()
-        schedule.at('13:15:45')
+        schedule = Schedule().at('13:15:45')
         self.assertEqual(13, schedule.time.hour)
         self.assertEqual(15, schedule.time.minute)
         self.assertEqual(45, schedule.time.second)
 
     def test_schedule_valid_time_hm(self):
-        schedule = Schedule()
-        schedule.at('14:55')
+        schedule = Schedule().at('14:55')
         self.assertEqual(14, schedule.time.hour)
         self.assertEqual(55, schedule.time.minute)
 
     def test_schedule_valid_time_h(self):
-        schedule = Schedule()
-        schedule.at('19')
+        schedule = Schedule().at('19')
         self.assertEqual(19, schedule.time.hour)
 
     @freeze_time("2021-02-19 17:58:00")  # Friday - two minutes before scheduled time
