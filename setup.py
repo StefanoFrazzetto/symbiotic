@@ -36,7 +36,6 @@ setuptools.setup(
         'smart-devices',
     ],
     install_requires=[
-        'cached-property',
         'dependency-injector>=4.11',
         'event-bus',
         'gpiozero',

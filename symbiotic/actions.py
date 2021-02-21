@@ -41,7 +41,7 @@ class ActionScheduler(object):
         self.actions: List[Action] = []
         self._schedule: Union[Schedule, None] = None
 
-    def start_session_with_schedule(self, schedule: Schedule):
+    def start_session(self, schedule: Schedule):
         self._schedule = schedule
 
     def add(self, callback: Callable, *args, **kwargs):

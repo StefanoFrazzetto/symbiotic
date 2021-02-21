@@ -2,19 +2,19 @@ import atexit
 import logging
 import sys
 import time
-
-from cached_property import cached_property
 from contextlib import contextmanager
+from functools import cached_property
+
 from dependency_injector.providers import Configuration
 
 from .actions import ActionScheduler
-from .schedule import Schedule
 from .containers import (
     Container,
     DeviceContainer,
     SensorContainer,
     ServiceContainer,
 )
+from .schedule import Schedule
 
 
 class Symbiotic(object):
@@ -61,7 +61,7 @@ class Symbiotic(object):
 
     @contextmanager
     def scheduler(self, schedule: Schedule):
-        self._scheduler.start_session_with_schedule(schedule)
+        self._scheduler.start_session(schedule)
         yield self._scheduler
         self._scheduler.end_session()
 
