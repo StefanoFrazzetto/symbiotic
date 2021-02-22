@@ -3,7 +3,6 @@ import logging
 import sys
 import time
 from contextlib import contextmanager
-from functools import cached_property
 
 from dependency_injector import providers
 from dependency_injector.providers import Configuration
@@ -48,7 +47,7 @@ class Symbiotic(object):
     def name(self) -> str:
         return 'Symbiotic'
 
-    @cached_property
+    @property
     def logger(self) -> logging.Logger:
         logger = logging.getLogger(self.name)
 
