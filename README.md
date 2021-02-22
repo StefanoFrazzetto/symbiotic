@@ -41,8 +41,13 @@ every_evening = Schedule().every_day().at('19:00')
 with app.scheduler(weekdays_morning) as scheduler:
     scheduler.add(light_bulb.on, brightness=80, transition_duration='30m')
 
-with app.scheduler(weekdays_morning) as scheduler:
-    scheduler.add(light_bulb.on, color='red', transition_duration='60m')
+with app.scheduler(every_evening) as scheduler:
+    scheduler.add(
+        light_bulb.on,
+        brightness=50,
+        color='red',
+        transition_duration='60m'
+    )
 
 app.run()
 ```
