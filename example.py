@@ -1,6 +1,8 @@
 from gpiozero import Device
 
 from symbiotic import Symbiotic
+from symbiotic.schedule import Schedule, Day
+from symbiotic.colours import Colour
 
 if __name__ == '__main__':
     app = Symbiotic()
@@ -16,25 +18,19 @@ if __name__ == '__main__':
     light_bulb = app.devices.light_bulb('bedroom', service=ifttt)
 
     # turn on light with precise parameters
-    red = '#ff0000'
-    light_bulb.turn_on(brightness=95, transition_duration='1m', color=red)
+    light_bulb.turn_on(brightness=95, transition_duration='1m', color=Colour.RED)
 
     # turn on light only when motion is detected
-    light_bulb.event(motion_sensor.active).do(
-        light_bulb.turn_on,
-        color=(255, 255, 255),
-        brightness=85,
-        transition_duration=5
-    )
+    with app.events(motion_sensor.active) as events:
+        events.do(light_bulb.turn_on, color=Colour.WHITE, brightness=85, transition_duration=5)
 
-    # set a daily schedule to *turn on*
-    with light_bulb.schedule(light_bulb.turn_on) as schedule:
-        schedule.add(
-            brightness=10, transition_duration='60m').every().day.at('23:00')
+    # use schedules to perform control devices
+    morning_weekdays = Schedule().weekdays().at('08:00')
+    with app.scheduler(morning_weekdays) as scheduler:
+        scheduler.add(light_bulb.turn_on, brightness=10, transition_duration='60m')
 
-    # set a daily schedule to *turn off* with different parameters (coming soon)
-    with light_bulb.schedule(light_bulb.turn_off) as schedule:
-        schedule.add(
-            color=red, transition_duration='30m').every().day.at('23:59')
+    evening_schedule = Schedule().every(Day.MONDAY, Day.WEDNESDAY).at('22:00')
+    with app.scheduler(evening_schedule) as scheduler:
+        scheduler.add(light_bulb.turn_off, transition_duration='90m')
 
     app.run()
