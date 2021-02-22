@@ -30,4 +30,4 @@ class Test_Action_Unit(TestCase):
             pass
         action = Action(callback)
         schedule = Schedule().every_day().at('12:15')
-        action.schedule(schedule)
+        action.set_schedule(schedule)

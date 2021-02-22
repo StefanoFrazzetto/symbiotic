@@ -22,14 +22,14 @@ class Action(object):
     def __call__(self):
         return self._callback()
 
-    def schedule(self, schedule: Schedule) -> None:
+    def set_schedule(self, schedule: Schedule) -> None:
         self._schedule = schedule
-        self.reschedule()
+        self.schedule_next_execution()
 
     def should_execute(self):
         return datetime.now() > self._next_execution
 
-    def reschedule(self):
+    def schedule_next_execution(self):
         datetimes = [instant.next_datetime() for instant in self._schedule.instants()]
         self._next_execution = min(datetimes)  # get the earliest execution datetime
 
@@ -45,13 +45,9 @@ class ActionScheduler(object):
 
     def add(self, callback: Callable, *args, **kwargs):
         action = Action(callback, *args, *kwargs)
-        self._try_add_schedule_to_action(action)
+        action.set_schedule(self._schedule)
         self.actions.append(action)
         return action
-
-    def _try_add_schedule_to_action(self, action: Action):
-        if self._schedule is not None:
-            action.schedule(self._schedule)
 
     def end_session(self):
         self._schedule = None
@@ -60,4 +56,4 @@ class ActionScheduler(object):
         for action in self.actions[:]:
             if action.should_execute():
                 action()
-                action.reschedule()
+                action.schedule_next_execution()
