@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setuptools.setup(
     name='symbiotic',
-    version='1.0.0-alpha1',
+    version='1.0.0-alpha2',
     author='Stefano Frazzetto',
     author_email='s.frazzetto22+pypi@gmail.com',
     description='Connect your smart devices and sensors to create complex actions and schedules.',
@@ -17,6 +17,7 @@ setuptools.setup(
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
