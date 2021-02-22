@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
+
 'Create a high quality module of reusable and extendable data validators'
+
+
 # Original source:
 # https://github.com/rhettinger/modernpython/blob/master/validators.py
 

@@ -1,9 +1,8 @@
-import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import partial
 from typing import Callable, List, Union
 
-from symbiotic.schedule import Day, Schedule, Instant
+from symbiotic.schedule import Schedule
 
 
 class Action(object):
@@ -60,5 +59,5 @@ class ActionScheduler(object):
     def run(self):
         for action in self.actions[:]:
             if action.should_execute():
-                res = action()
+                action()
                 action.reschedule()

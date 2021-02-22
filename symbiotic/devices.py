@@ -1,14 +1,9 @@
-import logging
-import math
 from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import NamedTuple
 from enum import Enum
 
 from .exceptions import ConfigurationError
-from .services import ServiceResponse, BaseService
-
 from .parameters import LightBulbParameters, Parameters
+from .services import ServiceResponse, BaseService
 
 
 class State(Enum):
@@ -17,6 +12,7 @@ class State(Enum):
 
     def __str__(self):
         return self.value
+
 
 class SmartDevice(ABC):
     """
@@ -36,7 +32,7 @@ class SmartDevice(ABC):
     def __init__(self, name: str, *args, **kwargs) -> None:
         self.name: str = name
         self.service: BaseService = kwargs.pop('service', None)
-        self._state: SmartDevice.State = kwargs.pop('state', None)
+        self._state: State = kwargs.pop('state', None)
         self._parameters: Parameters = self.default_parameters
         super().__init__(*args, **kwargs)
 

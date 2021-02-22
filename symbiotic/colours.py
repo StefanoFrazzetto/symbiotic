@@ -1,7 +1,11 @@
-'Colors defined as Enum'
+"""
+Colors defined as Enum
 
-# Colors from
-# https://stackoverflow.com/questions/22408237/named-colors-in-matplotlib
+The colours have been sourced from:
+https://stackoverflow.com/questions/22408237/named-colors-in-matplotlib
+"""
+
+# flake8: noqa
 
 from enum import Enum
 
@@ -75,7 +79,7 @@ class Colour(Enum):
     GOLDENROD =              '#DAA520'
     GRAY =                   '#808080'
     GREEN =                  '#008000'
-    GREENY_ELLOW =           '#ADFF2F'
+    GREEN_YELLOW =           '#ADFF2F'
     HONEYDEW =               '#F0FFF0'
     HOT_PINK =               '#FF69B4'
     INDIAN_RED =             '#CD5C5C'
