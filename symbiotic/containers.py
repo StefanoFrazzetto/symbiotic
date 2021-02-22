@@ -2,12 +2,12 @@ from dependency_injector import containers, providers
 from gpiozero.pins.pigpio import PiGPIOFactory
 
 from .devices import LightBulb
-from .services import IFTTT
+from .event_bus import EventBus
 from .sensors import GPIOMotionSensor
+from .services import IFTTT
 
 
 class ServiceContainer(containers.DeclarativeContainer):
-
     config = providers.Configuration()
 
     # It's not possible to pass the root config 'config.services'
@@ -18,15 +18,15 @@ class ServiceContainer(containers.DeclarativeContainer):
 
 
 class DeviceContainer(containers.DeclarativeContainer):
-
     config = providers.Configuration()
 
     light_bulb: LightBulb = providers.Factory(LightBulb)
 
 
 class SensorContainer(containers.DeclarativeContainer):
-
     config = providers.Configuration()
+
+    event_bus = providers.Dependency(instance_of=EventBus)
 
     pin_factory = providers.FactoryAggregate(
         pigpio=providers.Factory(
@@ -38,11 +38,14 @@ class SensorContainer(containers.DeclarativeContainer):
 
     gpio_motion_sensor: GPIOMotionSensor = providers.Factory(
         GPIOMotionSensor,
+        event_bus=event_bus
     )
 
 
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
+
+    event_bus = providers.Dependency(instance_of=EventBus)
 
     devices: DeviceContainer = providers.Container(
         DeviceContainer,
@@ -52,6 +55,7 @@ class Container(containers.DeclarativeContainer):
     sensors: SensorContainer = providers.Container(
         SensorContainer,
         config=config.sensors,
+        event_bus=event_bus,
     )
 
     services: ServiceContainer = providers.Container(

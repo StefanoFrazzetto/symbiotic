@@ -5,6 +5,7 @@ import time
 from contextlib import contextmanager
 from functools import cached_property
 
+from dependency_injector import providers
 from dependency_injector.providers import Configuration
 
 from .actions import ActionScheduler
@@ -14,6 +15,7 @@ from .containers import (
     SensorContainer,
     ServiceContainer,
 )
+from .event_bus import EventBusAdapter, EventSubscriber
 from .schedule import Schedule
 
 
@@ -25,7 +27,7 @@ class Symbiotic(object):
         atexit.register(self.shutdown)
 
     def create_container(self) -> Container:
-        container = Container()
+        container = Container(event_bus=providers.Singleton(EventBusAdapter))
         container.config.debug.from_env('SYMBIOTIC_DEBUG')
         container.init_resources()
         container.wire(modules=[sys.modules[__name__]])
@@ -58,6 +60,15 @@ class Symbiotic(object):
     @property
     def devices(self) -> DeviceContainer:
         return self.container.devices
+
+    @contextmanager
+    def events(self, event_name: str) -> EventSubscriber:
+        event_subscriber = EventSubscriber(self.event_bus, event_name)
+        yield event_subscriber
+
+    @property
+    def event_bus(self):
+        return self.container.event_bus()
 
     @contextmanager
     def scheduler(self, schedule: Schedule):
