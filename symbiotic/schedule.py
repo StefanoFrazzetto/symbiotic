@@ -1,7 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta, time as time_class
 from enum import IntEnum
-from typing import Set, Union, List
+from typing import Set, Union
 
 
 class Day(IntEnum):
@@ -169,4 +169,3 @@ class Schedule(object):
         if not self.is_valid():
             e = 'Valid schedules must specify a time and at least one day.'
             raise ScheduleConfigurationError(e)
-
