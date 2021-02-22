@@ -48,8 +48,6 @@ setuptools.setup(
         'dev': [
             'autopep8',
             'flake8',
-            'pytest',
-            'pytest-mock'
         ],
         'test': [
             'pytest',
