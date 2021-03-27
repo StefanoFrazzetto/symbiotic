@@ -7,7 +7,7 @@ setuptools.setup(
     name='symbiotic',
     version='1.0.0-alpha2',
     author='Stefano Frazzetto',
-    author_email='s.frazzetto22+pypi@gmail.com',
+    author_email='stefano+symbiotic@hey.com',
     license='Apache-2.0',
     description='Connect your smart devices and sensors to create complex actions and schedules.',
     long_description=long_description,
