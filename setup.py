@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setuptools.setup(
     name='symbiotic',
-    version='1.0.0-alpha2',
+    version='1.0.0-alpha3',
     author='Stefano Frazzetto',
     author_email='stefano+symbiotic@hey.com',
     license='Apache-2.0',
