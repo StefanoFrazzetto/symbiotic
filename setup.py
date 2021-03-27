@@ -9,7 +9,7 @@ setuptools.setup(
     author='Stefano Frazzetto',
     author_email='stefano+symbiotic@hey.com',
     license='Apache-2.0',
-    description='Connect your smart devices and sensors to create complex actions and schedules.',
+    description='Connect your smart devices and sensors to create complex, schedulable actions.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/StefanoFrazzetto/symbiotic',
