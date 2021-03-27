@@ -5,10 +5,11 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setuptools.setup(
     name='symbiotic',
-    version='1.0.0-alpha2',
+    version='1.0.0-alpha3',
     author='Stefano Frazzetto',
-    author_email='s.frazzetto22+pypi@gmail.com',
-    description='Connect your smart devices and sensors to create complex actions and schedules.',
+    author_email='stefano+symbiotic@hey.com',
+    license='Apache-2.0',
+    description='Connect your smart devices and sensors to create complex, schedulable actions.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/StefanoFrazzetto/symbiotic',
@@ -21,7 +22,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Topic :: Home Automation',
         'Topic :: Software Development :: Libraries',
